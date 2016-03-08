@@ -1,4 +1,4 @@
-FROM    webvariants/php-sally
+FROM    webvariants/php-sally:5.6
 
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 
