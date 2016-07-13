@@ -8,6 +8,13 @@ ENV     XHPROF_VERSION      0.9.4
 RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf \
      && sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/sites-enabled/000-default.conf \
+     && { \
+            echo '<Directory ${WEB_ROOT}/>'; \
+            echo '  Options Indexes FollowSymLinks'; \
+            echo '  AllowOverride All'; \
+            echo '  Require all granted'; \
+            echo '</Directory>'; \
+        } >> /etc/apache2/sites-enabled/000-default.conf \
 
      && apt-get update \
      && apt-get install -y \
