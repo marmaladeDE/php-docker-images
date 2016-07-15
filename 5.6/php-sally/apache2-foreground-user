@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-if [ ! -z "PHP_MAIL_FROM" ]; then
+if [ ! -z "$PHP_MAIL_FROM" ]; then
 	sed -i "s/john.doe@example.com/${PHP_MAIL_FROM}/" /usr/local/etc/php/conf.d/sendmail.ini
 fi
 
-if [ ! -z "PHP_MAIL_HOST" ]; then
+if [ ! -z "$PHP_MAIL_HOST" ]; then
 	sed -i "s/--host=mail/--host=${PHP_MAIL_HOST}/" /usr/local/etc/php/conf.d/sendmail.ini
 fi
 
