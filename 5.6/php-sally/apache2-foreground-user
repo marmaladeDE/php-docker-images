@@ -27,4 +27,9 @@ fi
 
 chown -R www-data:www-data /app/data
 
+if [ ! -z "$ROBOTS_DISALLOW" ]; then
+	echo "User-agent: *" > $WEB_ROOT/robots.txt
+	echo "Disallow: $ROBOTS_DISALLOW" >> $WEB_ROOT/robots.txt
+fi
+
 exec /usr/local/bin/apache2-foreground
