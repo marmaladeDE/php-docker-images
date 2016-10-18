@@ -38,4 +38,36 @@ if [ ! -z "$PHP_TYPO3_INI" ]; then
 	echo "max_execution_time=240" >> /usr/local/etc/php/conf.d/typo3.ini
 fi
 
+if [ ! -z "$PHP_OPCACHE_INI" ]; then
+	echo "opcache enabled"
+
+	if [ ! -z "$PHP_OPCACHE_INI_FAST_SHOTDOWN" ]; then
+		echo "opcache.fast_shutdown=$PHP_OPCACHE_INI_FAST_SHOTDOWN" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+
+	if [ ! -z "$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" ]; then
+		echo "opcache.max_accelerated_files=$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+
+	if [ ! -z "$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" ]; then
+		echo "opcache.interned_strings_buffer=$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+
+	if [ ! -z "$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" ]; then
+		echo "opcache.memory_consumption=$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+
+	if [ ! -z "$PHP_OPCACHE_INI_REVALIDATE_FREQ" ]; then
+		echo "opcache.revalidate_freq=$PHP_OPCACHE_INI_REVALIDATE_FREQ" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+
+	if [ ! -z "$PHP_OPCACHE_INI_FILE_CACHE" ]; then
+		echo "opcache.file_cache=$PHP_OPCACHE_INI_FILE_CACHE" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	fi
+else
+	echo "opcache disabled"
+
+	rm /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+fi
+
 exec /usr/local/bin/apache2-foreground
