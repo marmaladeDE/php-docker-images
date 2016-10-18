@@ -17,6 +17,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
 
      && apt-get update \
      && apt-get install -y \
+            nano \
             locales \
             libfreetype6-dev \
             libjpeg62-turbo-dev \
