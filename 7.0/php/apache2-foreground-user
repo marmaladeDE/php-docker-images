@@ -103,4 +103,8 @@ if [ -z "$DISABLE_CHOWN_DATA" ]; then
 	chown -R www-data:www-data "${APP_DATA}"
 fi
 
+if [ ! -z "$APP_DATA_DENY" ]; then
+	echo "Require all denied" > "${APP_DATA}/.htaccess"
+fi
+
 exec /usr/local/bin/apache2-foreground
