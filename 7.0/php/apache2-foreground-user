@@ -1,31 +1,42 @@
 #!/bin/bash
 set -e
 
-if [ ! -z "$PHP_MAIL_FROM" ]; then
-	sed -i "s/john.doe@example.com/${PHP_MAIL_FROM}/" /usr/local/etc/php/conf.d/sendmail.ini
+if [ -z "$APP_DATA" ]; then
+	export APP_DATA=/app/data
 fi
 
-if [ ! -z "$PHP_MAIL_HOST" ]; then
-	sed -i "s/--host=mail/--host=${PHP_MAIL_HOST}/" /usr/local/etc/php/conf.d/sendmail.ini
+if [ -z "$PHP_MAIL_FROM" ]; then
+	export PHP_MAIL_FROM=john.doe@example.com
 fi
 
-rm -rf /app/data/temp/sally/yaml-cache/*
-rm -rf /app/data/temp/sally/less-cache/*
-mkdir -p /app/data/upload_tmp
-mkdir -p /app/data/session
-
-
-if [ ! -z "$WWW_DATA_UID" ]; then
-	echo "www-data uid => ${WWW_DATA_UID}"
-	usermod -u ${WWW_DATA_UID} www-data
-	if [ ! -z "$WWW_DATA_GID" ]; then
-		echo "www-data gid => ${WWW_DATA_GID}"
-		groupmod -g ${WWW_DATA_GID} www-data
-	fi
-	chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+if [ -z "$PHP_MAIL_HOST" ]; then
+	export PHP_MAIL_HOST=mail
 fi
 
-chown -R www-data:www-data /app/data
+echo "sendmail_from = ${PHP_MAIL_FROM}" > /usr/local/etc/php/conf.d/sendmail.ini
+echo "sendmail_path = \"/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t\"" >> /usr/local/etc/php/conf.d/sendmail.ini
+
+
+if [ -z "$PHP_SESSION_SAVE_PATH" ]; then
+	export PHP_SESSION_SAVE_PATH="${APP_DATA}/session"
+fi
+
+if [ -z "$PHP_UPLOAD_TMP_DIR" ]; then
+	export PHP_UPLOAD_TMP_DIR="${APP_DATA}/upload_tmp"
+fi
+
+if [ -z "$PHP_UPLOAD_MAX_FILESIZE" ]; then
+	export PHP_UPLOAD_MAX_FILESIZE=64M
+fi
+
+if [ -z "$PHP_POST_MAX_SIZE" ]; then
+	export PHP_POST_MAX_SIZE=64M
+fi
+
+echo "session.save_path     = \"$PHP_SESSION_SAVE_PATH\""      > /usr/local/etc/php/conf.d/docker-php.ini
+echo "upload_tmp_dir        = \"$PHP_UPLOAD_TMP_DIR\""        >> /usr/local/etc/php/conf.d/docker-php.ini
+echo "upload_max_filesize   = \"$PHP_UPLOAD_MAX_FILESIZE\""   >> /usr/local/etc/php/conf.d/docker-php.ini
+echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
 
 if [ ! -z "$ROBOTS_DISALLOW" ]; then
 	echo "User-agent: *" > $WEB_ROOT/robots.txt
@@ -33,9 +44,9 @@ if [ ! -z "$ROBOTS_DISALLOW" ]; then
 fi
 
 if [ ! -z "$PHP_TYPO3_INI" ]; then
-	echo "always_populate_raw_post_data=-1" > /usr/local/etc/php/conf.d/typo3.ini
-	echo "max_input_vars=1500" >> /usr/local/etc/php/conf.d/typo3.ini
-	echo "max_execution_time=240" >> /usr/local/etc/php/conf.d/typo3.ini
+	echo "always_populate_raw_post_data   = -1"      > /usr/local/etc/php/conf.d/typo3.ini
+	echo "max_input_vars                  = 1500"   >> /usr/local/etc/php/conf.d/typo3.ini
+	echo "max_execution_time              = 240"    >> /usr/local/etc/php/conf.d/typo3.ini
 fi
 
 if [ ! -z "$PHP_OPCACHE_INI" ]; then
@@ -68,6 +79,28 @@ else
 	echo "opcache disabled"
 
 	rm /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+fi
+
+if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
+	rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
+	rm -rf "${APP_DATA}/temp/sally/less-cache/*"
+fi
+
+mkdir -p "$PHP_UPLOAD_TMP_DIR"
+mkdir -p "$PHP_SESSION_SAVE_PATH"
+
+if [ ! -z "$WWW_DATA_UID" ]; then
+	echo "www-data uid => ${WWW_DATA_UID}"
+	usermod -u ${WWW_DATA_UID} www-data
+	if [ ! -z "$WWW_DATA_GID" ]; then
+		echo "www-data gid => ${WWW_DATA_GID}"
+		groupmod -g ${WWW_DATA_GID} www-data
+	fi
+	chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+fi
+
+if [ -z "$DISABLE_CHOWN_DATA" ]; then
+	chown -R www-data:www-data "${APP_DATA}"
 fi
 
 exec /usr/local/bin/apache2-foreground

@@ -93,8 +93,6 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && rm -r /usr/share/doc \
      && rm -r /var/lib/apt/lists/*
 
-COPY    sendmail.ini               /usr/local/etc/php/conf.d/
-COPY    php-sally.ini              /usr/local/etc/php/conf.d/
 COPY    apache2-foreground-user    /usr/local/bin/
 
 WORKDIR /app
