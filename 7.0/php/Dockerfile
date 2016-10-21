@@ -8,6 +8,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf \
      && sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/sites-enabled/000-default.conf \
      && { \
+            echo 'ServerName localhost'; \
             echo '<Directory ${WEB_ROOT}/>'; \
             echo '  Options Indexes FollowSymLinks'; \
             echo '  AllowOverride All'; \
