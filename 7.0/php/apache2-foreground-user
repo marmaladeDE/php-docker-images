@@ -13,10 +13,6 @@ if [ -z "$PHP_MAIL_HOST" ]; then
 	export PHP_MAIL_HOST=mail
 fi
 
-echo "sendmail_from = ${PHP_MAIL_FROM}" > /usr/local/etc/php/conf.d/sendmail.ini
-echo "sendmail_path = \"/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t\"" >> /usr/local/etc/php/conf.d/sendmail.ini
-
-
 if [ -z "$PHP_SESSION_SAVE_PATH" ]; then
 	export PHP_SESSION_SAVE_PATH="${APP_DATA}/session"
 fi
@@ -33,78 +29,89 @@ if [ -z "$PHP_POST_MAX_SIZE" ]; then
 	export PHP_POST_MAX_SIZE=64M
 fi
 
-echo "session.save_path     = \"$PHP_SESSION_SAVE_PATH\""      > /usr/local/etc/php/conf.d/docker-php.ini
-echo "upload_tmp_dir        = \"$PHP_UPLOAD_TMP_DIR\""        >> /usr/local/etc/php/conf.d/docker-php.ini
-echo "upload_max_filesize   = \"$PHP_UPLOAD_MAX_FILESIZE\""   >> /usr/local/etc/php/conf.d/docker-php.ini
-echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
+if [ ! -f /init_done ]; then
+	echo "Creating config..."
 
-if [ ! -z "$ROBOTS_DISALLOW" ]; then
-	echo "User-agent: *" > $WEB_ROOT/robots.txt
-	echo "Disallow: $ROBOTS_DISALLOW" >> $WEB_ROOT/robots.txt
-fi
+	echo "sendmail_from = ${PHP_MAIL_FROM}" > /usr/local/etc/php/conf.d/sendmail.ini
+	echo "sendmail_path = \"/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t\"" >> /usr/local/etc/php/conf.d/sendmail.ini
 
-if [ ! -z "$PHP_TYPO3_INI" ]; then
-	echo "always_populate_raw_post_data   = -1"      > /usr/local/etc/php/conf.d/typo3.ini
-	echo "max_input_vars                  = 1500"   >> /usr/local/etc/php/conf.d/typo3.ini
-	echo "max_execution_time              = 240"    >> /usr/local/etc/php/conf.d/typo3.ini
-fi
+	echo "session.save_path     = \"$PHP_SESSION_SAVE_PATH\""      > /usr/local/etc/php/conf.d/docker-php.ini
+	echo "upload_tmp_dir        = \"$PHP_UPLOAD_TMP_DIR\""        >> /usr/local/etc/php/conf.d/docker-php.ini
+	echo "upload_max_filesize   = \"$PHP_UPLOAD_MAX_FILESIZE\""   >> /usr/local/etc/php/conf.d/docker-php.ini
+	echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
 
-if [ ! -z "$PHP_OPCACHE_INI" ]; then
-	echo "opcache enabled"
-
-	if [ ! -z "$PHP_OPCACHE_INI_FAST_SHOTDOWN" ]; then
-		echo "opcache.fast_shutdown=$PHP_OPCACHE_INI_FAST_SHOTDOWN" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	if [ ! -z "$ROBOTS_DISALLOW" ]; then
+		echo "User-agent: *" > $WEB_ROOT/robots.txt
+		echo "Disallow: $ROBOTS_DISALLOW" >> $WEB_ROOT/robots.txt
 	fi
 
-	if [ ! -z "$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" ]; then
-		echo "opcache.max_accelerated_files=$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	if [ ! -z "$PHP_TYPO3_INI" ]; then
+		echo "always_populate_raw_post_data   = -1"      > /usr/local/etc/php/conf.d/typo3.ini
+		echo "max_input_vars                  = 1500"   >> /usr/local/etc/php/conf.d/typo3.ini
+		echo "max_execution_time              = 240"    >> /usr/local/etc/php/conf.d/typo3.ini
 	fi
 
-	if [ ! -z "$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" ]; then
-		echo "opcache.interned_strings_buffer=$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	if [ ! -z "$PHP_OPCACHE_INI" ]; then
+		echo "opcache enabled"
+
+		if [ ! -z "$PHP_OPCACHE_INI_FAST_SHOTDOWN" ]; then
+			echo "opcache.fast_shutdown=$PHP_OPCACHE_INI_FAST_SHOTDOWN" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+
+		if [ ! -z "$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" ]; then
+			echo "opcache.max_accelerated_files=$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+
+		if [ ! -z "$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" ]; then
+			echo "opcache.interned_strings_buffer=$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+
+		if [ ! -z "$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" ]; then
+			echo "opcache.memory_consumption=$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+
+		if [ ! -z "$PHP_OPCACHE_INI_REVALIDATE_FREQ" ]; then
+			echo "opcache.revalidate_freq=$PHP_OPCACHE_INI_REVALIDATE_FREQ" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+
+		if [ ! -z "$PHP_OPCACHE_INI_FILE_CACHE" ]; then
+			echo "opcache.file_cache=$PHP_OPCACHE_INI_FILE_CACHE" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+		fi
+	else
+		echo "opcache disabled"
+
+		rm -f /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 	fi
 
-	if [ ! -z "$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" ]; then
-		echo "opcache.memory_consumption=$PHP_OPCACHE_INI_MEMORY_CONSUMPTION" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
+		rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
+		rm -rf "${APP_DATA}/temp/sally/less-cache/*"
 	fi
 
-	if [ ! -z "$PHP_OPCACHE_INI_REVALIDATE_FREQ" ]; then
-		echo "opcache.revalidate_freq=$PHP_OPCACHE_INI_REVALIDATE_FREQ" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	mkdir -p "$PHP_UPLOAD_TMP_DIR"
+	mkdir -p "$PHP_SESSION_SAVE_PATH"
+
+	if [ ! -z "$WWW_DATA_UID" ]; then
+		echo "www-data uid => ${WWW_DATA_UID}"
+		usermod -u ${WWW_DATA_UID} www-data
+		if [ ! -z "$WWW_DATA_GID" ]; then
+			echo "www-data gid => ${WWW_DATA_GID}"
+			groupmod -g ${WWW_DATA_GID} www-data
+		fi
+		chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
 	fi
 
-	if [ ! -z "$PHP_OPCACHE_INI_FILE_CACHE" ]; then
-		echo "opcache.file_cache=$PHP_OPCACHE_INI_FILE_CACHE" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	if [ -z "$DISABLE_CHOWN_DATA" ]; then
+		chown -R www-data:www-data "${APP_DATA}"
 	fi
+
+	if [ ! -z "$APP_DATA_DENY" ]; then
+		echo "Require all denied" > "${APP_DATA}/.htaccess"
+	fi
+
+	touch /init_done
 else
-	echo "opcache disabled"
-
-	rm /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
-fi
-
-if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
-	rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
-	rm -rf "${APP_DATA}/temp/sally/less-cache/*"
-fi
-
-mkdir -p "$PHP_UPLOAD_TMP_DIR"
-mkdir -p "$PHP_SESSION_SAVE_PATH"
-
-if [ ! -z "$WWW_DATA_UID" ]; then
-	echo "www-data uid => ${WWW_DATA_UID}"
-	usermod -u ${WWW_DATA_UID} www-data
-	if [ ! -z "$WWW_DATA_GID" ]; then
-		echo "www-data gid => ${WWW_DATA_GID}"
-		groupmod -g ${WWW_DATA_GID} www-data
-	fi
-	chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
-fi
-
-if [ -z "$DISABLE_CHOWN_DATA" ]; then
-	chown -R www-data:www-data "${APP_DATA}"
-fi
-
-if [ ! -z "$APP_DATA_DENY" ]; then
-	echo "Require all denied" > "${APP_DATA}/.htaccess"
+	echo "Skipping config creation because caintainer is restarted."
 fi
 
 exec /usr/local/bin/apache2-foreground
