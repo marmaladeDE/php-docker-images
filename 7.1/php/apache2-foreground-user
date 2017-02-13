@@ -41,6 +41,7 @@ if [ ! -f /init_done ]; then
 	echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
 
 	if [ ! -z "$ROBOTS_DISALLOW" ]; then
+		echo "Robots disallow: ${ROBOTS_DISALLOW}"
 		echo "User-agent: *" > $WEB_ROOT/robots.txt
 		echo "Disallow: $ROBOTS_DISALLOW" >> $WEB_ROOT/robots.txt
 	fi
@@ -84,12 +85,18 @@ if [ ! -f /init_done ]; then
 	fi
 
 	if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
+		echo "clear sally yaml and less cache"
 		rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
 		rm -rf "${APP_DATA}/temp/sally/less-cache/*"
 	fi
 
 	mkdir -p "$PHP_UPLOAD_TMP_DIR"
 	mkdir -p "$PHP_SESSION_SAVE_PATH"
+
+	if [ ! -z "$STARTUP_CREATE_DIRS" ]; then
+		echo "create directories: ${STARTUP_CREATE_DIRS}"
+		mkdir -p $STARTUP_CREATE_DIRS
+	fi
 
 	if [ ! -z "$WWW_DATA_UID" ]; then
 		echo "www-data uid => ${WWW_DATA_UID}"
@@ -102,11 +109,28 @@ if [ ! -f /init_done ]; then
 	fi
 
 	if [ -z "$DISABLE_CHOWN_DATA" ]; then
+		echo "chown -R: ${APP_DATA}"
 		chown -R www-data:www-data "${APP_DATA}"
 	fi
 
 	if [ ! -z "$APP_DATA_DENY" ]; then
+		echo "Deny all: ${APP_DATA}"
 		echo "Require all denied" > "${APP_DATA}/.htaccess"
+	fi
+
+	if [ ! -z "$STARTUP_CHOWN" ]; then
+		echo "chown: ${STARTUP_CHOWN}"
+		chown www-data:www-data $STARTUP_CHOWN
+	fi
+
+	if [ ! -z "$STARTUP_CHOWN_RECURSIVE" ]; then
+		echo "chown -R: ${STARTUP_CHOWN_RECURSIVE}"
+		chown www-data:www-data $STARTUP_CHOWN_RECURSIVE
+	fi
+
+	if [ ! -z "$STARTUP_REMOVE" ]; then
+		echo "rm -rf: ${STARTUP_REMOVE}"
+		rm -rf $STARTUP_REMOVE
 	fi
 
 	touch /init_done
