@@ -138,4 +138,14 @@ else
 	echo "Skipping config creation because caintainer is restarted."
 fi
 
+if [ ! -z "$START_SCRIPT_DIR" ]; then
+	for SCRIPT in $START_SCRIPT_DIR/*
+	do
+		if [ -f $SCRIPT -a -x $SCRIPT ]
+		then
+			$SCRIPT
+		fi
+	done
+fi
+
 exec /usr/local/bin/apache2-foreground
