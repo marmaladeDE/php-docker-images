@@ -43,6 +43,10 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             msmtp \
             git \
             mercurial \
+            postgresql-client-common \
+            postgresql-server-dev-all \
+            libsqlite3-dev \
+            libssl-dev \
 
      && npm install --quiet -g npm \
      && npm install --quiet -g grunt-cli bower \
@@ -61,6 +65,12 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
 
      && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
 
+     && pecl install mongodb \
+     && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
+
+     && pecl install apcu \
+     && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini \
+
      && docker-php-ext-install \
             opcache \
             tidy \
@@ -74,6 +84,8 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             mcrypt \
             gd \
             pdo_mysql \
+            pdo_pgsql \
+            pdo_sqlite \
             mysqli \
             soap \
 
@@ -89,8 +101,10 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             libtidy-dev \
             zlib1g-dev \
             libxml2-dev \
+            libssl-dev \
 
      && php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin \
+     && ln -s /bin/composer.phar /bin/composer \
 
      && rm -r /usr/share/doc \
      && rm -r /var/lib/apt/lists/*
