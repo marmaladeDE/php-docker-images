@@ -29,6 +29,10 @@ if [ -z "$PHP_POST_MAX_SIZE" ]; then
 	export PHP_POST_MAX_SIZE=64M
 fi
 
+if [ -z "$PHP_PCRE_JIT" ]; then
+	export PHP_PCRE_JIT=0
+fi
+
 if [ ! -f /init_done ]; then
 	echo "Creating config..."
 
@@ -39,6 +43,7 @@ if [ ! -f /init_done ]; then
 	echo "upload_tmp_dir        = \"$PHP_UPLOAD_TMP_DIR\""        >> /usr/local/etc/php/conf.d/docker-php.ini
 	echo "upload_max_filesize   = \"$PHP_UPLOAD_MAX_FILESIZE\""   >> /usr/local/etc/php/conf.d/docker-php.ini
 	echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
+	echo "pcre.jit              = \"$PHP_PCRE_JIT\""              >> /usr/local/etc/php/conf.d/docker-php.ini
 
 	if [ ! -z "PHP_DATE_TIMEZONE" ]; then
 		echo "date.timezone         = \"$PHP_DATE_TIMEZONE\""     >> /usr/local/etc/php/conf.d/docker-php.ini
