@@ -30,7 +30,7 @@ if [ -z "$PHP_POST_MAX_SIZE" ]; then
 fi
 
 if [ -z "$PHP_PCRE_JIT" ]; then
-	export PHP_PCRE_JIT=0
+	export PHP_PCRE_JIT=1
 fi
 
 if [ ! -f /init_done ]; then
