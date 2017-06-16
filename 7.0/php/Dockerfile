@@ -50,7 +50,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
 
      && npm install --quiet -g npm \
      && npm install --quiet -g grunt-cli bower \
-     && npm cache clean \
+     && npm cache clean --force \
 
      && a2enmod rewrite headers expires \
 
