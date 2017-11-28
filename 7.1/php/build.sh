@@ -4,6 +4,6 @@ docker build \
 	--pull \
 	--tag webvariants/php:7.1 \
 	--force-rm \
-	--memory 256MB \
-	--memory-swap 512MB \
+	--memory 2048MB \
+	--memory-swap 4096MB \
 	.
