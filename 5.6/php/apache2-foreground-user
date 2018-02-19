@@ -40,15 +40,15 @@ if [ ! -f /init_done ]; then
 	echo "upload_max_filesize   = \"$PHP_UPLOAD_MAX_FILESIZE\""   >> /usr/local/etc/php/conf.d/docker-php.ini
 	echo "post_max_size         = \"$PHP_POST_MAX_SIZE\""         >> /usr/local/etc/php/conf.d/docker-php.ini
 
-	if [ ! -z "PHP_MEMORY_LIMIT" ]; then
+	if [ ! -z "$PHP_MEMORY_LIMIT" ]; then
 		echo "memory_limit          = \"$PHP_MEMORY_LIMIT\""      >> /usr/local/etc/php/conf.d/docker-php.ini
 	fi
 
-	if [ ! -z "PHP_DATE_TIMEZONE" ]; then
+	if [ ! -z "$PHP_DATE_TIMEZONE" ]; then
 		echo "date.timezone         = \"$PHP_DATE_TIMEZONE\""     >> /usr/local/etc/php/conf.d/docker-php.ini
 	fi
 
-	if [ ! -z "PHP_SHORT_OPEN_TAG" ]; then
+	if [ ! -z "$PHP_SHORT_OPEN_TAG" ]; then
 		echo "short_open_tag        = \"$PHP_SHORT_OPEN_TAG\""    >> /usr/local/etc/php/conf.d/docker-php.ini
 	fi
 
