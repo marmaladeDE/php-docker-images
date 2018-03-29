@@ -101,17 +101,36 @@ if [ ! -f /init_done ]; then
 		mkdir -p $STARTUP_CREATE_DIRS
 	fi
 
-	if [ ! -z "$WWW_DATA_UID" ]; then
-		echo "www-data uid => ${WWW_DATA_UID}"
-		usermod -u ${WWW_DATA_UID} www-data
-		if [ ! -z "$WWW_DATA_GID" ]; then
-			echo "www-data gid => ${WWW_DATA_GID}"
-			groupmod -g ${WWW_DATA_GID} www-data
+	if [ "$PHP_IMAGE_VERSION" == "2"  ]; then
+		if [ ! -z "$WWW_USER" ]; then
+			export APACHE_RUN_USER="$WWW_USER"
+			echo "APACHE_RUN_USER: $WWW_USER"
+			if [ $(id -u $WWW_USER 2>/dev/null || echo -1) -lt 0 ]; then
+				echo "User does not exist"
+				exit -1
+			fi
 		fi
-		chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+		if [ ! -z "$WWW_GROUP" ]; then
+			export APACHE_RUN_GROUP="$WWW_GROUP"
+			echo "APACHE_RUN_GROUP: $WWW_GROUP"
+			if [ $(id -g $WWW_GROUP 2>/dev/null || echo -1) -lt 0 ]; then
+				echo "Group does not exist"
+				exit -1
+			fi
+		fi
+	else
+		if [ ! -z "$WWW_DATA_UID" ]; then
+			echo "www-data uid => ${WWW_DATA_UID}"
+			usermod -u ${WWW_DATA_UID} www-data
+			if [ ! -z "$WWW_DATA_GID" ]; then
+				echo "www-data gid => ${WWW_DATA_GID}"
+				groupmod -g ${WWW_DATA_GID} www-data
+			fi
+			chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+		fi
 	fi
 
-	if [ -z "$DISABLE_CHOWN_DATA" ]; then
+	if [ "$PHP_IMAGE_VERSION" != "2"  ] && [ -z "$DISABLE_CHOWN_DATA" ]; then
 		echo "chown -R: ${APP_DATA}"
 		chown -R www-data:www-data "${APP_DATA}"
 	fi
