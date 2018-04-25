@@ -16,6 +16,8 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             echo '</Directory>'; \
         } >> /etc/apache2/sites-enabled/000-default.conf \
      \
+     && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+     && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
      && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
      \
      && apt-get install -y \
