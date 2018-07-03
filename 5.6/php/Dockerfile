@@ -18,6 +18,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      \
      && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
      && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
+     && apt-get update && apt-get install -y gnupg2 \
      && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
      \
      && apt-get install -y \
@@ -29,14 +30,15 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             libmcrypt4 \
             libmcrypt-dev \
             libcurl4-openssl-dev \
-            libpng12-dev \
+            libpng16-16 \
+            libpng-dev \
             libxslt1.1 \
             libxslt1-dev \
             libxml2-dev \
-            libicu52 \
+            libicu57 \
             icu-devtools \
             libicu-dev \
-            libtidy-0.99-0 \
+            libtidy5 \
             libtidy-dev \
             zlib1g-dev \
             libxml2-dev \
@@ -46,6 +48,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             git \
             mercurial \
      \
+     && export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)" \
      && npm install --quiet -g npm@5 \
      && npm install --quiet -g grunt-cli bower \
      && npm cache clean --force \
@@ -85,7 +88,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             libjpeg62-turbo-dev \
             libmcrypt-dev \
             libcurl4-openssl-dev \
-            libpng12-dev \
+            libpng-dev \
             libxslt1-dev \
             libxml2-dev \
             libicu-dev \
