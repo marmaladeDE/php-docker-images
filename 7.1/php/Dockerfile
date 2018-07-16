@@ -79,6 +79,8 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && pecl install apcu \
      && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini \
      \
+     && pecl install xdebug \
+     \
      && docker-php-ext-install \
             opcache \
             tidy \

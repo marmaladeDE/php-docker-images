@@ -71,11 +71,13 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      \
      && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
      \
-     && MAKEFLAGS="-j$(nproc)" pecl install mongodb \
+     && pecl install mongodb \
      && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
      \
-     && MAKEFLAGS="-j$(nproc)" pecl install apcu \
+     && pecl install apcu \
      && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini \
+     \
+     && pecl install xdebug \
      \
      && docker-php-ext-install -j$(nproc) \
             opcache \
