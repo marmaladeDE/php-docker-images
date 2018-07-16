@@ -26,7 +26,7 @@ var_default PHP_UPLOAD_MAX_FILESIZE       64M
 var_default PHP_POST_MAX_SIZE             64M
 var_default PHP_PCRE_JIT                  1
 
-if [ ! -f /init_done ]; then
+if [ ! -f "/state/init_done" ]; then
 	echo "Creating config..."
 
 	SENDMAIL_INI=/usr/local/etc/php/conf.d/sendmail.ini
@@ -40,7 +40,7 @@ if [ ! -f /init_done ]; then
 	ini_line upload_max_filesize  $PHP_UPLOAD_MAX_FILESIZE  $DOCKER_INI
 	ini_line post_max_size        $PHP_POST_MAX_SIZE        $DOCKER_INI
 	ini_line pcre.jit             $PHP_PCRE_JIT             $DOCKER_INI
-    ini_line memory_limit         $PHP_MEMORY_LIMIT         $DOCKER_INI
+	ini_line memory_limit         $PHP_MEMORY_LIMIT         $DOCKER_INI
 	ini_line date.timezone        $PHP_DATE_TIMEZONE        $DOCKER_INI
 	ini_line short_open_tag       $PHP_SHORT_OPEN_TAG       $DOCKER_INI
 
@@ -71,7 +71,7 @@ if [ ! -f /init_done ]; then
 		cat $TYPO3_INI
 	fi
 
-	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
+	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache-extra.ini
 	if [ ! -z "$PHP_OPCACHE_INI" ]; then
 		echo "opcache enabled"
 		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHOTDOWN           $OPCACHE_INI
@@ -155,7 +155,7 @@ if [ ! -f /init_done ]; then
 		rm -rf $STARTUP_REMOVE
 	fi
 
-	touch /init_done
+	touch "/state/init_done"
 else
 	echo "Skipping config creation because caintainer is restarted."
 fi
