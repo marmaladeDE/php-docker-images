@@ -13,7 +13,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && { \
             echo 'ServerName localhost'; \
             echo '<Directory ${WEB_ROOT}/>'; \
-            echo '  Options Indexes FollowSymLinks'; \
+            echo '  Options FollowSymLinks'; \
             echo '  AllowOverride All'; \
             echo '  Require all granted'; \
             echo '</Directory>'; \
