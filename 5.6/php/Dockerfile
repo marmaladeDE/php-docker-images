@@ -3,9 +3,12 @@ FROM    php:5.6-apache
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 
 ENV     WEB_ROOT            /app
+ENV     WEB_PORT            8080
 
 RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf \
+     && sed -i "s|<VirtualHost \*:80>|<VirtualHost *:\$\{WEB_PORT\}>|" /etc/apache2/sites-enabled/000-default.conf \
+     && sed -i "s|Listen 80|Listen \$\{WEB_PORT\}|" /etc/apache2/ports.conf \
      && sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/sites-enabled/000-default.conf \
      && { \
             echo 'ServerName localhost'; \
@@ -97,9 +100,12 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             libxml2-dev \
      \
      && php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin \
+     && ln -s /bin/composer.phar /bin/composer \
      \
      && rm -r /usr/share/doc \
      && rm -r /var/lib/apt/lists/*
+
+RUN mkdir /state && chmod o+w /state /usr/local/etc/php/conf.d /var/run/apache2/
 
 COPY    apache2-foreground-user    /usr/local/bin/
 
