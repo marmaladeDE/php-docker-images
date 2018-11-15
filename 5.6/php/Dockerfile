@@ -4,6 +4,7 @@ MAINTAINER Martin Schnabel <martin@webvariants.de>
 
 ENV     WEB_ROOT            /app
 ENV     WEB_PORT            8080
+ENV     SecRuleEngine       DetectionOnly # On
 
 RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf \
@@ -25,6 +26,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
      \
      && apt-get install -y \
+            libapache2-mod-security2 \
             nodejs \
             nano \
             locales \
@@ -56,7 +58,11 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && npm install --quiet -g grunt-cli bower \
      && npm cache clean --force \
      \
-     && a2enmod rewrite headers expires \
+     && a2enmod rewrite headers expires security2 \
+     && cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf \
+     && sed -i -e "s/SecRuleEngine DetectionOnly/SecRuleEngine \$\{SecRuleEngine\}/g" /etc/modsecurity/modsecurity.conf \
+     && cd /var/log/apache2 \
+     && ln -s /dev/stderr modsec_audit.log \
      \
      && echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen \
      && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
