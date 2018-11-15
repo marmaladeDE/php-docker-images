@@ -3,7 +3,22 @@ FROM    php:7.1-apache
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 
 ENV     WEB_ROOT            /app
-ENV     SecRuleEngine       DetectionOnly # On
+
+# https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
+ENV     SecRuleEngine=DetectionOnly \
+        SecRequestBodyAccess=On \
+        SecRequestBodyLimit=13107200 \
+        SecRequestBodyNoFilesLimit=131072 \
+        SecRequestBodyInMemoryLimit=131072 \
+        SecRequestBodyLimitAction=Reject \
+        SecResponseBodyAccess=On \
+        SecResponseBodyMimeType="text/plain text/html text/xml" \
+        SecResponseBodyLimit=524288 \
+        SecResponseBodyLimitAction=ProcessPartial \
+        SecTmpDir=/tmp/ \
+        SecDataDir=/tmp/ \
+        SecAuditLogParts=ABDEFHIJZ \
+        SecStatusEngine=On
 
 RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf \
@@ -61,7 +76,20 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      \
      && a2enmod rewrite headers expires security2 \
      && cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf \
-     && sed -i -e "s/SecRuleEngine DetectionOnly/SecRuleEngine \$\{SecRuleEngine\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRuleEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRequestBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRequestBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRequestBodyNoFilesLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRequestBodyInMemoryLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecRequestBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecResponseBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecResponseBodyMimeType) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecResponseBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecResponseBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecTmpDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecDataDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecAuditLogParts) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecStatusEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
      && cd /var/log/apache2 \
      && ln -s /dev/stderr modsec_audit.log \
      \
