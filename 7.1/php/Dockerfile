@@ -68,6 +68,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             postgresql-server-dev-all \
             libsqlite3-dev \
             libssl-dev \
+            unzip \
      \
      && export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)" \
      && npm install --quiet -g npm \

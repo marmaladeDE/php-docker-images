@@ -64,6 +64,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             msmtp \
             git \
             mercurial \
+            unzip \
      \
      && export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)" \
      && npm install --quiet -g npm@5 \
