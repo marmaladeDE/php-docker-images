@@ -10,13 +10,14 @@ ENV     SecRuleEngine=DetectionOnly \
         SecRequestBodyLimit=13107200 \
         SecRequestBodyNoFilesLimit=131072 \
         SecRequestBodyInMemoryLimit=131072 \
-        SecRequestBodyLimitAction=Reject \
+        SecRequestBodyLimitAction=ProcessPartial \
         SecResponseBodyAccess=On \
         SecResponseBodyMimeType="text/plain text/html text/xml" \
         SecResponseBodyLimit=524288 \
         SecResponseBodyLimitAction=ProcessPartial \
         SecTmpDir=/tmp/ \
         SecDataDir=/tmp/ \
+        SecAuditEngine=Off \
         SecAuditLogParts=ABDEFHIJZ \
         SecStatusEngine=On
 
@@ -89,8 +90,15 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && sed -i -E "s/^(SecResponseBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
      && sed -i -E "s/^(SecTmpDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
      && sed -i -E "s/^(SecDataDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && sed -i -E "s/^(SecAuditEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
      && sed -i -E "s/^(SecAuditLogParts) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
      && sed -i -E "s/^(SecStatusEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf \
+     && cd /usr/share \
+     && curl -L https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.0.2.tar.gz | tar xvz \
+     && mv modsecurity-crs modsecurity-crs-old \
+     && mv owasp-modsecurity-crs-3.0.2 modsecurity-crs \
+     && echo 'SecAction "id:900990, phase:1, nolog, pass, t:none, setvar:tx.crs_setup_version=310"' > /usr/share/modsecurity-crs/owasp-crs.load \
+     && echo "Include /usr/share/modsecurity-crs/rules/*.conf" >> /usr/share/modsecurity-crs/owasp-crs.load \
      && cd /var/log/apache2 \
      && ln -s /dev/stderr modsec_audit.log \
      \
