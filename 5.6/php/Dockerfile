@@ -93,8 +93,10 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && curl -L https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.0.2.tar.gz | tar xvz \
      && mv modsecurity-crs modsecurity-crs-old \
      && mv owasp-modsecurity-crs-3.0.2 modsecurity-crs \
-     && echo 'SecAction "id:900990, phase:1, nolog, pass, t:none, setvar:tx.crs_setup_version=310"' > /usr/share/modsecurity-crs/owasp-crs.load \
-     && echo "Include /usr/share/modsecurity-crs/rules/*.conf" >> /usr/share/modsecurity-crs/owasp-crs.load \
+     && echo 'SecAction "id:900990, phase:1, nolog, pass, t:none, setvar:tx.crs_setup_version=310"' > modsecurity-crs/owasp-crs.load \
+     && echo "Include /usr/share/modsecurity-crs/rules/*.conf" >> modsecurity-crs/owasp-crs.load \
+     && touch modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf \
+     && chmod o+w modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf \
      && cd /var/log/apache2 \
      && ln -s /dev/stderr modsec_audit.log \
      \

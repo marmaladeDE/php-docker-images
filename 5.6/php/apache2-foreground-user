@@ -145,6 +145,12 @@ if [ ! -f /init_done ]; then
 		rm -rf $STARTUP_REMOVE
 	fi
 
+	if [ ! -z "$SecExclude" ]; then
+		echo "$SecExclude" >> /usr/share/modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
+		echo "ModSecurity exclusion: "
+		echo "$SecExclude"
+	fi
+
 	touch /init_done
 else
 	echo "Skipping config creation because caintainer is restarted."
