@@ -1,0 +1,179 @@
+#!/bin/bash
+set -e
+
+function var_default {
+	if [ -z "${!1}" ]; then
+		export $1="$2"
+	fi
+}
+
+function ini_line {
+	if [ ! -z "$2" ]; then
+		if [ -z "$3" ]; then
+			echo "$1 = \"$2\""
+		else
+			echo "$1 = \"$2\"" >> $3
+		fi
+	fi
+}
+
+var_default APP_DATA                      /app/data
+var_default PHP_MAIL_FROM                 john.doe@example.com
+var_default PHP_MAIL_HOST                 mail
+var_default PHP_SESSION_SAVE_PATH         "${APP_DATA}/session"
+var_default PHP_UPLOAD_TMP_DIR            "${APP_DATA}/upload_tmp"
+var_default PHP_UPLOAD_MAX_FILESIZE       64M
+var_default PHP_POST_MAX_SIZE             64M
+var_default PHP_PCRE_JIT                  1
+
+if [ ! -f "/state/init_done" ]; then
+	echo "Creating config..."
+
+	SENDMAIL_INI=/usr/local/etc/php/conf.d/sendmail.ini
+	ini_line sendmail_from "${PHP_MAIL_FROM}" $SENDMAIL_INI
+	ini_line sendmail_path "/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t" $SENDMAIL_INI
+	cat $SENDMAIL_INI
+
+	DOCKER_INI=/usr/local/etc/php/conf.d/docker-php.ini
+	ini_line session.save_path    $PHP_SESSION_SAVE_PATH    $DOCKER_INI
+	ini_line upload_tmp_dir       $PHP_UPLOAD_TMP_DIR       $DOCKER_INI
+	ini_line upload_max_filesize  $PHP_UPLOAD_MAX_FILESIZE  $DOCKER_INI
+	ini_line post_max_size        $PHP_POST_MAX_SIZE        $DOCKER_INI
+	ini_line pcre.jit             $PHP_PCRE_JIT             $DOCKER_INI
+	ini_line memory_limit         $PHP_MEMORY_LIMIT         $DOCKER_INI
+	ini_line date.timezone        $PHP_DATE_TIMEZONE        $DOCKER_INI
+	ini_line short_open_tag       $PHP_SHORT_OPEN_TAG       $DOCKER_INI
+
+	# Any environment variable starting with PHPINI_ will be transformed to an
+	# ini setting. "__" will by replaced by ".". ex. "PHPINI_FOO__BAR_X" -> "foo.bar_x"
+	while IFS= read -r -d '' ENVVAR; do
+		if [[ $ENVVAR == PHPINI_* ]] ; then
+			IFS='=' read -ra ENVNAME <<< "$ENVVAR"
+			PHPNAME=${ENVNAME,,}
+			PHPNAME=${PHPNAME:7}
+			PHPNAME=${PHPNAME//__/.}
+			echo "$PHPNAME = \"${!ENVNAME}\"" >> $DOCKER_INI
+		fi
+	done < <(env -0)
+	cat $DOCKER_INI
+
+	if [ ! -z "$ROBOTS_DISALLOW" ]; then
+		echo "Robots disallow: ${ROBOTS_DISALLOW}"
+		echo "User-agent: *" > $WEB_ROOT/robots.txt
+		echo "Disallow: $ROBOTS_DISALLOW" >> $WEB_ROOT/robots.txt
+	fi
+
+	if [ ! -z "$PHP_TYPO3_INI" ]; then
+		TYPO3_INI=/usr/local/etc/php/conf.d/typo3.ini
+		ini_line always_populate_raw_post_data   -1      $TYPO3_INI
+		ini_line max_input_vars                  1500    $TYPO3_INI
+		ini_line max_execution_time              240     $TYPO3_INI
+		cat $TYPO3_INI
+	fi
+
+	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache-extra.ini
+	if [ ! -z "$PHP_OPCACHE_INI" ]; then
+		echo "opcache enabled"
+		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHUTDOWN           $OPCACHE_INI
+		ini_line opcache.max_accelerated_files   $PHP_OPCACHE_INI_MAX_ACCELERATED_FILES   $OPCACHE_INI
+		ini_line opcache.interned_strings_buffer $PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER $OPCACHE_INI
+		ini_line opcache.memory_consumption      $PHP_OPCACHE_INI_MEMORY_CONSUMPTION      $OPCACHE_INI
+		ini_line opcache.revalidate_freq         $PHP_OPCACHE_INI_REVALIDATE_FREQ         $OPCACHE_INI
+		ini_line opcache.file_cache              $PHP_OPCACHE_INI_FILE_CACHE              $OPCACHE_INI
+		cat $OPCACHE_INI
+	else
+		echo "opcache disabled"
+
+		rm -f $OPCACHE_INI
+	fi
+
+	if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
+		echo "clear sally yaml and less cache"
+		rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
+		rm -rf "${APP_DATA}/temp/sally/less-cache/*"
+	fi
+
+	mkdir -p "$PHP_UPLOAD_TMP_DIR"
+	mkdir -p "$PHP_SESSION_SAVE_PATH"
+
+	if [ ! -z "$STARTUP_CREATE_DIRS" ]; then
+		echo "create directories: ${STARTUP_CREATE_DIRS}"
+		mkdir -p $STARTUP_CREATE_DIRS
+	fi
+
+	if [ "$PHP_IMAGE_VERSION" == "2"  ]; then
+		if [ ! -z "$WWW_USER" ]; then
+			export APACHE_RUN_USER="$WWW_USER"
+			echo "APACHE_RUN_USER: $WWW_USER"
+			if [ $(id -u $WWW_USER 2>/dev/null || echo -1) -lt 0 ]; then
+				echo "User does not exist"
+				exit -1
+			fi
+		fi
+		if [ ! -z "$WWW_GROUP" ]; then
+			export APACHE_RUN_GROUP="$WWW_GROUP"
+			echo "APACHE_RUN_GROUP: $WWW_GROUP"
+			if [ $(id -g $WWW_GROUP 2>/dev/null || echo -1) -lt 0 ]; then
+				echo "Group does not exist"
+				exit -1
+			fi
+		fi
+	else
+		if [ ! -z "$WWW_DATA_UID" ]; then
+			echo "www-data uid => ${WWW_DATA_UID}"
+			usermod -u ${WWW_DATA_UID} www-data
+			if [ ! -z "$WWW_DATA_GID" ]; then
+				echo "www-data gid => ${WWW_DATA_GID}"
+				groupmod -g ${WWW_DATA_GID} www-data
+			fi
+			chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+		fi
+	fi
+
+	if [ "$PHP_IMAGE_VERSION" != "2"  ] && [ -z "$DISABLE_CHOWN_DATA" ]; then
+		echo "chown -R: ${APP_DATA}"
+		chown -R www-data:www-data "${APP_DATA}"
+	fi
+
+	if [ ! -z "$APP_DATA_DENY" ]; then
+		echo "Deny all: ${APP_DATA}"
+		echo "Require all denied" > "${APP_DATA}/.htaccess"
+	fi
+
+	if [ ! -z "$STARTUP_CHOWN" ]; then
+		echo "chown: ${STARTUP_CHOWN}"
+		chown www-data:www-data $STARTUP_CHOWN
+	fi
+
+	if [ ! -z "$STARTUP_CHOWN_RECURSIVE" ]; then
+		echo "chown -R: ${STARTUP_CHOWN_RECURSIVE}"
+		chown www-data:www-data $STARTUP_CHOWN_RECURSIVE
+	fi
+
+	if [ ! -z "$STARTUP_REMOVE" ]; then
+		echo "rm -rf: ${STARTUP_REMOVE}"
+		rm -rf $STARTUP_REMOVE
+	fi
+
+	if [ ! -z "$SecExclude" ]; then
+		echo "$SecExclude" >> /usr/share/modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
+		echo "ModSecurity exclusion: "
+		echo "$SecExclude"
+	fi
+
+	touch "/state/init_done"
+else
+	echo "Skipping config creation because caintainer is restarted."
+fi
+
+if [ ! -z "$START_SCRIPT_DIR" ]; then
+	for SCRIPT in $START_SCRIPT_DIR/*
+	do
+		if [ -f $SCRIPT -a -x $SCRIPT ]
+		then
+			$SCRIPT
+		fi
+	done
+fi
+
+exec /usr/local/bin/apache2-foreground
