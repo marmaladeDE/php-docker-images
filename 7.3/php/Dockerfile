@@ -1,4 +1,4 @@
-FROM    php:7.3-rc-apache
+FROM    php:7.3-apache
 
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 

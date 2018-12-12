@@ -31,7 +31,11 @@ if [ ! -f "/state/init_done" ]; then
 
 	SENDMAIL_INI=/usr/local/etc/php/conf.d/sendmail.ini
 	ini_line sendmail_from "${PHP_MAIL_FROM}" $SENDMAIL_INI
-	ini_line sendmail_path "/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t" $SENDMAIL_INI
+	if [ -z "${PHP_MAIL_MSMTP_OPTIONS}" ]; then
+		ini_line sendmail_path "/usr/bin/msmtp --host=${PHP_MAIL_HOST} --from=${PHP_MAIL_FROM} --auth=off -t" $SENDMAIL_INI
+	else
+		ini_line sendmail_path "/usr/bin/msmtp ${PHP_MAIL_MSMTP_OPTIONS}" $SENDMAIL_INI
+	fi
 	cat $SENDMAIL_INI
 
 	DOCKER_INI=/usr/local/etc/php/conf.d/docker-php.ini
