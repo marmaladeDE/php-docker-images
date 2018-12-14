@@ -3,7 +3,7 @@ FROM    php:7.0-apache
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 
 ENV     WEB_ROOT            /app
-ENV     WEB_PORT            8080
+ENV     WEB_PORT            80
 
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 ENV     SecRuleEngine=DetectionOnly \
@@ -124,7 +124,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && pecl install apcu \
      && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini \
      \
-     && docker-php-ext-install \
+     && docker-php-ext-install -j$(nproc) \
             opcache \
             tidy \
             iconv \

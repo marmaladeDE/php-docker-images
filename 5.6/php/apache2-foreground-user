@@ -78,6 +78,7 @@ if [ ! -f "/state/init_done" ]; then
 	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache-extra.ini
 	if [ ! -z "$PHP_OPCACHE_INI" ]; then
 		echo "opcache enabled"
+		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHOTDOWN           $OPCACHE_INI # just to be compatible with this typo
 		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHUTDOWN           $OPCACHE_INI
 		ini_line opcache.max_accelerated_files   $PHP_OPCACHE_INI_MAX_ACCELERATED_FILES   $OPCACHE_INI
 		ini_line opcache.interned_strings_buffer $PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER $OPCACHE_INI
@@ -123,20 +124,21 @@ if [ ! -f "/state/init_done" ]; then
 			fi
 		fi
 	else
+		# Version 1 user handling
 		if [ ! -z "$WWW_DATA_UID" ]; then
-			echo "www-data uid => ${WWW_DATA_UID}"
-			usermod -u ${WWW_DATA_UID} www-data
+			echo "${WWW_USER-www-data} uid => ${WWW_DATA_UID}"
+			usermod -u ${WWW_DATA_UID} ${WWW_USER-www-data}
 			if [ ! -z "$WWW_DATA_GID" ]; then
-				echo "www-data gid => ${WWW_DATA_GID}"
-				groupmod -g ${WWW_DATA_GID} www-data
+				echo "${WWW_GROUP-www-data} gid => ${WWW_DATA_GID}"
+				groupmod -g ${WWW_DATA_GID} ${WWW_GROUP-www-data}
 			fi
-			chown -R www-data:www-data /var/lock/apache2 /var/run/apache2 /var/log/apache2
+			chown -R ${WWW_USER-www-data}:${WWW_GROUP-www-data} /var/lock/apache2 /var/run/apache2 /var/log/apache2
 		fi
 	fi
 
 	if [ "$PHP_IMAGE_VERSION" != "2"  ] && [ -z "$DISABLE_CHOWN_DATA" ]; then
 		echo "chown -R: ${APP_DATA}"
-		chown -R www-data:www-data "${APP_DATA}"
+		chown -R ${WWW_USER-www-data}:${WWW_GROUP-www-data} "${APP_DATA}"
 	fi
 
 	if [ ! -z "$APP_DATA_DENY" ]; then
@@ -146,12 +148,12 @@ if [ ! -f "/state/init_done" ]; then
 
 	if [ ! -z "$STARTUP_CHOWN" ]; then
 		echo "chown: ${STARTUP_CHOWN}"
-		chown www-data:www-data $STARTUP_CHOWN
+		chown ${WWW_USER-www-data}:${WWW_GROUP-www-data} $STARTUP_CHOWN
 	fi
 
 	if [ ! -z "$STARTUP_CHOWN_RECURSIVE" ]; then
 		echo "chown -R: ${STARTUP_CHOWN_RECURSIVE}"
-		chown www-data:www-data $STARTUP_CHOWN_RECURSIVE
+		chown ${WWW_USER-www-data}:${WWW_GROUP-www-data} $STARTUP_CHOWN_RECURSIVE
 	fi
 
 	if [ ! -z "$STARTUP_REMOVE" ]; then

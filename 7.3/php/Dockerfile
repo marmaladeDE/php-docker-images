@@ -3,7 +3,7 @@ FROM    php:7.3-apache
 MAINTAINER Martin Schnabel <martin@webvariants.de>
 
 ENV     WEB_ROOT            /app
-ENV     WEB_PORT            8080
+ENV     WEB_PORT            80
 
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 ENV     SecRuleEngine=DetectionOnly \
