@@ -163,6 +163,8 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
 
 RUN mkdir /state && chmod o+w /state /usr/local/etc/php/conf.d /var/run/apache2/
 
+RUN curl https://raw.githubusercontent.com/mcnilz/minicron/master/minicron > /usr/local/bin/minicron && chmod +x /usr/local/bin/minicron
+
 COPY    apache2-foreground-user    /usr/local/bin/
 
 WORKDIR /app

@@ -25,6 +25,7 @@ var_default PHP_UPLOAD_TMP_DIR            "${APP_DATA}/upload_tmp"
 var_default PHP_UPLOAD_MAX_FILESIZE       64M
 var_default PHP_POST_MAX_SIZE             64M
 var_default PHP_PCRE_JIT                  1
+var_default FINAL_EXEC                    /usr/local/bin/apache2-foreground
 
 if [ ! -f "/state/init_done" ]; then
 	echo "Creating config..."
@@ -182,4 +183,16 @@ if [ ! -z "$START_SCRIPT_DIR" ]; then
 	done
 fi
 
-exec /usr/local/bin/apache2-foreground
+if [ ! -z "$MINICRON_EXEC" ]; then
+	echo "Running minicron..."
+	if [ ! -z "$MINICRON_CRONTAB" ]; then
+		exec minicron -e <<< "$MINICRON_CRONTAB"
+	fi
+	if [ ! -z "$MINICRON_FILE" ]; then
+		cat "$MINICRON_FILE" | exec minicron -e
+	fi
+	echo "Missing MINICRON_CRONTAB or MINICRON_FILE env variable"
+	exit -1
+fi
+
+exec "$FINAL_EXEC"
