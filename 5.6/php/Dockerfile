@@ -36,6 +36,8 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
             echo '</Directory>'; \
         } >> /etc/apache2/sites-enabled/000-default.conf \
      \
+     && sed -i "s|^ServerTokens .*|ServerTokens Prod|" /etc/apache2/conf-available/security.conf \
+     && sed -i "s|^ServerSignature .*|ServerSignature Off|" /etc/apache2/conf-available/security.conf \
      && echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
      && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
      && apt-get update && apt-get install -y gnupg2 \
