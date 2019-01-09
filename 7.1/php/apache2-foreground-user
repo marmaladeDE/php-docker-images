@@ -41,14 +41,14 @@ if [ ! -f "/state/init_done" ]; then
 	cat $SENDMAIL_INI
 
 	DOCKER_INI=/usr/local/etc/php/conf.d/docker-php.ini
-	ini_line session.save_path    $PHP_SESSION_SAVE_PATH    $DOCKER_INI
-	ini_line upload_tmp_dir       $PHP_UPLOAD_TMP_DIR       $DOCKER_INI
-	ini_line upload_max_filesize  $PHP_UPLOAD_MAX_FILESIZE  $DOCKER_INI
-	ini_line post_max_size        $PHP_POST_MAX_SIZE        $DOCKER_INI
-	ini_line pcre.jit             $PHP_PCRE_JIT             $DOCKER_INI
-	ini_line memory_limit         $PHP_MEMORY_LIMIT         $DOCKER_INI
-	ini_line date.timezone        $PHP_DATE_TIMEZONE        $DOCKER_INI
-	ini_line short_open_tag       $PHP_SHORT_OPEN_TAG       $DOCKER_INI
+	ini_line session.save_path    "$PHP_SESSION_SAVE_PATH"    $DOCKER_INI
+	ini_line upload_tmp_dir       "$PHP_UPLOAD_TMP_DIR"       $DOCKER_INI
+	ini_line upload_max_filesize  "$PHP_UPLOAD_MAX_FILESIZE"  $DOCKER_INI
+	ini_line post_max_size        "$PHP_POST_MAX_SIZE"        $DOCKER_INI
+	ini_line pcre.jit             "$PHP_PCRE_JIT"             $DOCKER_INI
+	ini_line memory_limit         "$PHP_MEMORY_LIMIT"         $DOCKER_INI
+	ini_line date.timezone        "$PHP_DATE_TIMEZONE"        $DOCKER_INI
+	ini_line short_open_tag       "$PHP_SHORT_OPEN_TAG"       $DOCKER_INI
 
 	# Any environment variable starting with PHPINI_ will be transformed to an
 	# ini setting. "__" will by replaced by ".". ex. "PHPINI_FOO__BAR_X" -> "foo.bar_x"
@@ -71,23 +71,25 @@ if [ ! -f "/state/init_done" ]; then
 
 	if [ ! -z "$PHP_TYPO3_INI" ]; then
 		TYPO3_INI=/usr/local/etc/php/conf.d/typo3.ini
-		ini_line always_populate_raw_post_data   -1      $TYPO3_INI
-		ini_line max_input_vars                  1500    $TYPO3_INI
-		ini_line max_execution_time              240     $TYPO3_INI
+		ini_line always_populate_raw_post_data   "-1"      $TYPO3_INI
+		ini_line max_input_vars                  "1500"    $TYPO3_INI
+		ini_line max_execution_time              "240"     $TYPO3_INI
 		cat $TYPO3_INI
 	fi
 
 	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache-extra.ini
 	if [ ! -z "$PHP_OPCACHE_INI" ]; then
 		echo "opcache enabled"
-		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHOTDOWN           $OPCACHE_INI # just to be compatible with this typo
-		ini_line opcache.fast_shutdown           $PHP_OPCACHE_INI_FAST_SHUTDOWN           $OPCACHE_INI
-		ini_line opcache.max_accelerated_files   $PHP_OPCACHE_INI_MAX_ACCELERATED_FILES   $OPCACHE_INI
-		ini_line opcache.interned_strings_buffer $PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER $OPCACHE_INI
-		ini_line opcache.memory_consumption      $PHP_OPCACHE_INI_MEMORY_CONSUMPTION      $OPCACHE_INI
-		ini_line opcache.revalidate_freq         $PHP_OPCACHE_INI_REVALIDATE_FREQ         $OPCACHE_INI
-		ini_line opcache.file_cache              $PHP_OPCACHE_INI_FILE_CACHE              $OPCACHE_INI
-		cat $OPCACHE_INI
+		ini_line opcache.fast_shutdown           "$PHP_OPCACHE_INI_FAST_SHOTDOWN"           $OPCACHE_INI # just to be compatible with this typo
+		ini_line opcache.fast_shutdown           "$PHP_OPCACHE_INI_FAST_SHUTDOWN"           $OPCACHE_INI
+		ini_line opcache.max_accelerated_files   "$PHP_OPCACHE_INI_MAX_ACCELERATED_FILES"   $OPCACHE_INI
+		ini_line opcache.interned_strings_buffer "$PHP_OPCACHE_INI_INTERNED_STRINGS_BUFFER" $OPCACHE_INI
+		ini_line opcache.memory_consumption      "$PHP_OPCACHE_INI_MEMORY_CONSUMPTION"      $OPCACHE_INI
+		ini_line opcache.revalidate_freq         "$PHP_OPCACHE_INI_REVALIDATE_FREQ"         $OPCACHE_INI
+		ini_line opcache.file_cache              "$PHP_OPCACHE_INI_FILE_CACHE"              $OPCACHE_INI
+		if [ -e "$OPCACHE_INI"  ]; then
+			cat $OPCACHE_INI
+		fi
 	else
 		echo "opcache disabled"
 
