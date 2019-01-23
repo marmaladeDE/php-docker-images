@@ -121,7 +121,7 @@ RUN     sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf \
      && pecl install mongodb \
      && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
      \
-     && pecl install apcu \
+     && yes '' | pecl install apcu \
      && echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini \
      \
      && pecl install xdebug \

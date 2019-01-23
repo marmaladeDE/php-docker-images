@@ -50,6 +50,18 @@ if [ ! -f "/state/init_done" ]; then
 	ini_line date.timezone        "$PHP_DATE_TIMEZONE"        $DOCKER_INI
 	ini_line short_open_tag       "$PHP_SHORT_OPEN_TAG"       $DOCKER_INI
 
+	if [ -n "$PHP_EXTENSIONS" ]; then
+		for EXT in $PHP_EXTENSIONS; do
+			echo "extension=$EXT" >> $DOCKER_INI
+		done
+	fi
+
+	if [ -n "$PHP_ZEND_EXTENSIONS" ]; then
+		for EXT in $PHP_ZEND_EXTENSIONS; do
+			echo "zend_extension=$EXT" >> $DOCKER_INI
+		done
+	fi
+
 	# Any environment variable starting with PHPINI_ will be transformed to an
 	# ini setting. "__" will by replaced by ".". ex. "PHPINI_FOO__BAR_X" -> "foo.bar_x"
 	while IFS= read -r -d '' ENVVAR; do
