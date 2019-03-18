@@ -186,6 +186,16 @@ if [ ! -f "/state/init_done" ]; then
 	touch "/state/init_done"
 else
 	echo "Skipping config creation because caintainer is restarted."
+
+	if [ "$PHP_IMAGE_VERSION" == "2"  ]; then
+		if [ ! -z "$WWW_USER" ]; then
+			export APACHE_RUN_USER="$WWW_USER"
+			echo "APACHE_RUN_USER: $WWW_USER"
+		fi
+		if [ ! -z "$WWW_GROUP" ]; then
+			export APACHE_RUN_GROUP="$WWW_GROUP"
+		fi
+	fi
 fi
 
 if [ ! -z "$START_SCRIPT_DIR" ]; then
