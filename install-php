@@ -1,0 +1,192 @@
+#!/bin/bash -e
+
+. /etc/os-release
+
+if [ "$VERSION" != "9 (stretch)" ]; then
+    echo "debian version must be stretch"
+    exit -1
+fi
+
+echo "PHP VERSION: $PHP_VERSION"
+
+APCU_DISABLE=
+NPM_VERSION=npm
+NODE_VERSION=8.x
+XDEBUG_VERSION=xdebug
+EXT_EXTRA=
+APT_EXTRA=
+APT_DEV_EXTRA=
+
+case $PHP_VERSION in
+    5.6.*)
+        APCU_DISABLE=1
+        NODE_VERSION=4.x
+        NPM_VERSION=npm@5
+        APT_EXTRA=libmcrypt4
+        APT_DEV_EXTRA=libmcrypt-dev
+        EXT_EXTRA=mcrypt
+        XDEBUG_VERSION=xdebug-2.5.5
+    ;;
+    7.0.*)
+        NODE_VERSION=4.x
+        NPM_VERSION=npm@5
+        APT_EXTRA=libmcrypt4
+        APT_DEV_EXTRA=libmcrypt-dev
+        EXT_EXTRA=mcrypt
+    ;;
+    7.1.*)
+        NODE_VERSION=6.x
+        APT_EXTRA=libmcrypt4
+        APT_DEV_EXTRA=libmcrypt-dev
+        EXT_EXTRA=mcrypt
+    ;;
+    7.2.*)
+    ;;
+    7.3.*)
+        APT_EXTRA=libzip4
+        APT_DEV_EXTRA=libzip-dev
+    ;;
+    *)
+        echo "not supported."
+        exit -1
+    ;;
+esac
+
+sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/apache2.conf
+sed -i "s|/var/www|\$\{WEB_ROOT\}|"      /etc/apache2/apache2.conf
+sed -i "s|<VirtualHost \*:80>|<VirtualHost *:\$\{WEB_PORT\}>|" /etc/apache2/sites-enabled/000-default.conf
+sed -i "s|Listen 80|Listen \$\{WEB_PORT\}|" /etc/apache2/ports.conf
+sed -i "s|/var/www/html|\$\{WEB_ROOT\}|" /etc/apache2/sites-enabled/000-default.conf
+{ \
+    echo 'ServerName localhost'; \
+    echo '<Directory ${WEB_ROOT}/>'; \
+    echo '  Options FollowSymLinks'; \
+    echo '  AllowOverride All'; \
+    echo '  Require all granted'; \
+    echo '</Directory>'; \
+} >> /etc/apache2/sites-enabled/000-default.conf
+sed -i "s|^ServerTokens .*|ServerTokens Prod|" /etc/apache2/conf-available/security.conf
+sed -i "s|^ServerSignature .*|ServerSignature Off|" /etc/apache2/conf-available/security.conf
+echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup
+echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache
+apt-get update && apt-get install -y gnupg2
+if [ -z $NODEJS_DISABLE ]; then
+    curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash -
+    apt-get install -y nodejs
+    npm install --quiet -g $NPM_VERSION
+    npm install --quiet -g grunt-cli bower
+    npm cache clean --force
+fi
+apt-get install -y \
+    libapache2-mod-security2 \
+    nano \
+    locales \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libcurl4-openssl-dev \
+    libpng16-16 \
+    libpng-dev \
+    libxslt1.1 \
+    libxslt1-dev \
+    libxml2-dev \
+    libicu57 \
+    icu-devtools \
+    libicu-dev \
+    libtidy5 \
+    libtidy-dev \
+    zlib1g-dev \
+    libxml2-dev \
+    curl \
+    graphicsmagick \
+    msmtp \
+    git \
+    mercurial \
+    postgresql-client-common \
+    postgresql-server-dev-all \
+    libsqlite3-dev \
+    libssl-dev \
+    unzip \
+    $APT_EXTRA \
+    $APT_DEV_EXTRA
+export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+a2enmod rewrite headers expires security2
+cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRuleEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRequestBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRequestBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRequestBodyNoFilesLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRequestBodyInMemoryLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecRequestBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecResponseBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecResponseBodyMimeType) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecResponseBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecResponseBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecTmpDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecDataDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecAuditEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecAuditLogParts) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+sed -i -E "s/^(SecStatusEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
+cd /usr/share
+curl -L https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.0.2.tar.gz | tar xvz
+mv modsecurity-crs modsecurity-crs-old
+mv owasp-modsecurity-crs-3.0.2 modsecurity-crs
+echo 'SecAction "id:900990, phase:1, nolog, pass, t:none, setvar:tx.crs_setup_version=310"' > modsecurity-crs/owasp-crs.load
+echo "Include /usr/share/modsecurity-crs/rules/*.conf" >> modsecurity-crs/owasp-crs.load
+touch modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
+chmod o+w modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
+cd /var/log/apache2
+ln -s /dev/stderr modsec_audit.log
+echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
+echo "fr_FR.UTF-8 UTF-8" >> /etc/locale.gen
+echo "it_IT.UTF-8 UTF-8" >> /etc/locale.gen
+echo "nl_NL.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+/usr/sbin/update-locale LANG=en_US.UTF-8
+docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+pecl install mongodb
+echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini
+if [ -z "$APCU_DISABLE" ]; then
+    yes '' | pecl install apcu
+    echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
+fi
+pecl install $XDEBUG_VERSION
+docker-php-ext-install -j$(nproc) \
+    opcache \
+    tidy \
+    iconv \
+    curl \
+    zip \
+    mbstring \
+    intl \
+    xmlrpc \
+    xsl \
+    gd \
+    pdo_mysql \
+    pdo_pgsql \
+    pdo_sqlite \
+    mysqli \
+    soap \
+    $EXT_EXTRA
+apt-get remove -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libcurl4-openssl-dev \
+    libpng-dev \
+    libxslt1-dev \
+    libxml2-dev \
+    libicu-dev \
+    libtidy-dev \
+    zlib1g-dev \
+    libxml2-dev \
+    libssl-dev \
+    $APT_DEV_EXTRA
+php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
+ln -s /bin/composer.phar /bin/composer
+rm -r /usr/share/doc
+rm -r /var/lib/apt/lists/*
+
+mkdir /state && chmod o+w /state /usr/local/etc/php/conf.d /var/run/apache2/
+
+curl https://raw.githubusercontent.com/mcnilz/minicron/master/minicron > /usr/local/bin/minicron && chmod +x /usr/local/bin/minicron

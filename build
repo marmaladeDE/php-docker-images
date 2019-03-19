@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	echo "missing version"
+	exit
+fi
+
+exec docker build \
+	--pull \
+	--tag webvariants/php:$1 \
+	--force-rm \
+	--memory 256MB \
+	--memory-swap 512MB \
+	-f Dockerfile-$1 \
+	.

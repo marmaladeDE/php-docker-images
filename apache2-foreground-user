@@ -194,6 +194,7 @@ else
 		fi
 		if [ ! -z "$WWW_GROUP" ]; then
 			export APACHE_RUN_GROUP="$WWW_GROUP"
+			echo "APACHE_RUN_GROUP: $WWW_GROUP"
 		fi
 	fi
 fi
