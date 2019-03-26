@@ -190,3 +190,5 @@ rm -r /var/lib/apt/lists/*
 mkdir /state && chmod o+w /state /usr/local/etc/php/conf.d /var/run/apache2/
 
 curl https://raw.githubusercontent.com/mcnilz/minicron/master/minicron > /usr/local/bin/minicron && chmod +x /usr/local/bin/minicron
+
+sed -i -E "s/^PS1='/PS1='🐳  /" /etc/bash.bashrc
