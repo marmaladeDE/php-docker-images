@@ -1,0 +1,35 @@
+FROM    php:7.1-fpm-alpine3.9
+
+ARG     NODEJS_DISABLE=
+
+# https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
+
+ENV     WEB_ROOT=/app \
+        WEB_PORT=80 \
+        SecRuleEngine=DetectionOnly \
+        SecRequestBodyAccess=On \
+        SecRequestBodyLimit=13107200 \
+        SecRequestBodyNoFilesLimit=131072 \
+        SecRequestBodyInMemoryLimit=131072 \
+        SecRequestBodyLimitAction=ProcessPartial \
+        SecResponseBodyAccess=On \
+        SecResponseBodyMimeType="text/plain text/html text/xml" \
+        SecResponseBodyLimit=524288 \
+        SecResponseBodyLimitAction=ProcessPartial \
+        SecTmpDir=/tmp/ \
+        SecDataDir=/tmp/ \
+        SecAuditEngine=Off \
+        SecAuditLogParts=ABDEFHIJZ \
+        SecStatusEngine=On
+
+RUN     apk add --no-cache bash
+
+COPY    apache2-foreground-user install-php /usr/local/bin/
+
+RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
+
+WORKDIR /app
+
+CMD     ["apache2-foreground-user"]
+
+# VOLUME /app/data

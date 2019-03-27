@@ -25,8 +25,13 @@ var_default PHP_UPLOAD_TMP_DIR            "${APP_DATA}/upload_tmp"
 var_default PHP_UPLOAD_MAX_FILESIZE       64M
 var_default PHP_POST_MAX_SIZE             64M
 var_default PHP_PCRE_JIT                  1
-var_default FINAL_EXEC                    /usr/local/bin/apache2-foreground
 var_default PHPINI_EXPOSE_PHP             off
+
+if [ -e "/usr/local/bin/apache2-foreground" ]; then
+	var_default FINAL_EXEC                /usr/local/bin/apache2-foreground
+else
+	var_default FINAL_EXEC                php-fpm
+fi
 
 if [ ! -f "/state/init_done" ]; then
 	echo "Creating config..."
