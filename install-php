@@ -24,7 +24,7 @@ case $PHP_VERSION in
         NPM_VERSION=npm@5
         APT_EXTRA=libmcrypt4
         APT_DEV_EXTRA=libmcrypt-dev
-        EXT_EXTRA=mcrypt
+        EXT_EXTRA="mysql mcrypt"
         XDEBUG_VERSION=xdebug-2.5.5
     ;;
     7.0.*)
