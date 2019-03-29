@@ -13,9 +13,11 @@ APCU_DISABLE=
 NPM_VERSION=npm
 NODE_VERSION=8.x
 XDEBUG_VERSION=xdebug
+MEMCACHED_VERSION=memcached
 EXT_EXTRA=
 APT_EXTRA=
 APT_DEV_EXTRA=
+PECL_EXTRA=
 
 case $PHP_VERSION in
     5.6.*)
@@ -26,6 +28,8 @@ case $PHP_VERSION in
         APT_DEV_EXTRA=libmcrypt-dev
         EXT_EXTRA="mysql mcrypt"
         XDEBUG_VERSION=xdebug-2.5.5
+        MEMCACHED_VERSION=memcached-2.2.0
+        PECL_EXTRA=memcache
     ;;
     7.0.*)
         NODE_VERSION=4.x
@@ -105,6 +109,8 @@ apt-get install -y \
     postgresql-server-dev-all \
     libsqlite3-dev \
     libssl-dev \
+    libmemcached11 \
+    libmemcached-dev \
     unzip \
     $APT_EXTRA \
     $APT_DEV_EXTRA
@@ -145,8 +151,10 @@ echo "nl_NL.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen
 /usr/sbin/update-locale LANG=en_US.UTF-8
 docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-pecl install mongodb
-echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini
+for P in mongodb $MEMCACHED_VERSION $PECL_EXTRA; do
+    pecl install $P
+    echo "extension=${P%-*}.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+done
 if [ -z "$APCU_DISABLE" ]; then
     yes '' | pecl install apcu
     echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
@@ -181,6 +189,7 @@ apt-get remove -y \
     zlib1g-dev \
     libxml2-dev \
     libssl-dev \
+    libmemcached-dev \
     $APT_DEV_EXTRA
 php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
 ln -s /bin/composer.phar /bin/composer
