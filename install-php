@@ -33,7 +33,11 @@ APCU_DISABLE=
 NPM_VERSION=npm
 NODE_VERSION=8.x
 XDEBUG_VERSION=xdebug
+MEMCACHED_VERSION=memcached
 EXT_EXTRA=
+APT_EXTRA=
+APT_DEV_EXTRA=
+PECL_EXTRA=
 
 case $PHP_VERSION in
     5.6.*)
@@ -42,8 +46,10 @@ case $PHP_VERSION in
         NPM_VERSION=npm@5
         APT_EXTRA=libmcrypt4
         APT_DEV_EXTRA=libmcrypt-dev
-        EXT_EXTRA=mcrypt
+        EXT_EXTRA="mysql mcrypt"
         XDEBUG_VERSION=xdebug-2.5.5
+        MEMCACHED_VERSION=memcached-2.2.0
+        PECL_EXTRA=memcache
     ;;
     7.0.*)
         NODE_VERSION=4.x
@@ -224,10 +230,10 @@ if [ -e "/etc/locale.gen" ]; then
 fi
 
 docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-pecl install mongodb
-echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini
-pecl install memcached
-echo "extension=memcached.so" > /usr/local/etc/php/conf.d/memcached.ini
+for P in mongodb $MEMCACHED_VERSION $PECL_EXTRA; do
+    pecl install $P
+    echo "extension=${P%-*}.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+done
 if [ -z "$APCU_DISABLE" ]; then
     yes '' | pecl install apcu
     echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
