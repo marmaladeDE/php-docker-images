@@ -137,6 +137,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         libsqlite3-dev \
         libssl-dev \
         unzip \
+        libcap2-bin \
         $APT_EXTRA \
         $APT_DEV_EXTRA
 fi
@@ -179,6 +180,7 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
         postgresql-dev \
         openssl-dev \
         sqlite-dev \
+        libcap \
         $APK_DEV_EXTRA
 fi
 
@@ -257,6 +259,20 @@ docker-php-ext-install -j$(nproc) \
     soap \
     $EXT_EXTRA
 
+
+if [ -e "/usr/sbin/setcap" ]; then
+    SETCAP=/usr/sbin/setcap
+fi
+if [ -e "/sbin/setcap" ]; then
+    SETCAP=/sbin/setcap
+fi
+if [ -e "/usr/sbin/apache2" ]; then
+    $SETCAP cap_net_bind_service+ep /usr/sbin/apache2
+fi
+if [ -e "/usr/local/sbin/php-fpm" ]; then
+    $SETCAP cap_net_bind_service+ep /usr/local/sbin/php-fpm
+fi
+
 if [ $PACKAGE_FORMAT == "apt" ]; then
     apt-get remove -y \
         libfreetype6-dev \
@@ -271,6 +287,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         libxml2-dev \
         libmemcached-dev \
         libssl-dev \
+        libcap2-bin \
         $APT_DEV_EXTRA
 
     rm -r /var/lib/apt/lists/*
