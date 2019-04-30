@@ -144,6 +144,7 @@ fi
 
 if [ $PACKAGE_FORMAT == "apk" ]; then
     apk add --no-cache \
+        coreutils \
         freetype \
         libjpeg-turbo \
         libpng \
