@@ -101,6 +101,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache
     apt-get update && apt-get install -y gnupg2
     if [ -z $NODEJS_DISABLE ]; then
+        >&2 echo "DEPRECATION: nodejs will be removed in the future of this image!"
         curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash -
         apt-get install -y nodejs
         npm install --quiet -g $NPM_VERSION

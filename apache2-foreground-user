@@ -87,6 +87,7 @@ if [ ! -f "/state/init_done" ]; then
 	fi
 
 	if [ ! -z "$PHP_TYPO3_INI" ]; then
+		>&2 echo "DEPRECATION: PHP_TYPO3_INI variable will be removed in the future of this image!"
 		TYPO3_INI=/usr/local/etc/php/conf.d/typo3.ini
 		ini_line always_populate_raw_post_data   "-1"      $TYPO3_INI
 		ini_line max_input_vars                  "1500"    $TYPO3_INI
@@ -96,6 +97,7 @@ if [ ! -f "/state/init_done" ]; then
 
 	OPCACHE_INI=/usr/local/etc/php/conf.d/docker-php-ext-opcache-extra.ini
 	if [ ! -z "$PHP_OPCACHE_INI" ]; then
+		>&2 echo "DEPRECATION: PHP_OPCACHE_INI variable will be removed in the future of this image!"
 		echo "opcache enabled"
 		ini_line opcache.fast_shutdown           "$PHP_OPCACHE_INI_FAST_SHOTDOWN"           $OPCACHE_INI # just to be compatible with this typo
 		ini_line opcache.fast_shutdown           "$PHP_OPCACHE_INI_FAST_SHUTDOWN"           $OPCACHE_INI
@@ -114,6 +116,7 @@ if [ ! -f "/state/init_done" ]; then
 	fi
 
 	if [ ! -z "$SALLY_CLEAR_CACHE" ]; then
+		>&2 echo "DEPRECATION: SALLY_CLEAR_CACHE variable will be removed in the future of this image!"
 		echo "clear sally yaml and less cache"
 		rm -rf "${APP_DATA}/temp/sally/yaml-cache/*"
 		rm -rf "${APP_DATA}/temp/sally/less-cache/*"
@@ -145,6 +148,7 @@ if [ ! -f "/state/init_done" ]; then
 			fi
 		fi
 	else
+		>&2 echo "DEPRECATION: version 1 will be removed in the future of this image!"
 		# Version 1 user handling
 		if [ ! -z "$WWW_DATA_UID" ]; then
 			echo "${WWW_USER-www-data} uid => ${WWW_DATA_UID}"
