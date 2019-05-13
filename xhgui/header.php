@@ -23,25 +23,33 @@ if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
     $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 }
 
-// $flags = Xhgui_Config::read('tideways.flags');
-// if (is_callable($flags)) {
-//     $flags = $flags();
-// }
-// tideways_xhprof_enable($flags);
-// unset($flags);
-
-define('PROFILE_START', microtime(true));
+$full_profiling = Xhgui_Config::read('full_profiling');
+if ($full_profiling) {
+    $flags = Xhgui_Config::read('tideways.flags');
+    if (is_callable($flags)) {
+        $flags = $flags();
+    }
+    tideways_xhprof_enable($flags);
+    unset($flags);
+}
+else {
+    define('PROFILE_START', microtime(true));
+}
+unset($full_profiling);
 
 register_shutdown_function(
     function () {
-        // $data['profile'] = tideways_xhprof_disable();
-        $data['profile'] = array(
-            'main()' => array(
-                'wt' => (int) ((microtime(true) - (float) PROFILE_START) * 1000000),
-                'ct' => 1,
-                'pmu' => memory_get_peak_usage(true)
-            )
-        );
+        if (Xhgui_Config::read('full_profiling')) {
+            $data['profile'] = tideways_xhprof_disable();
+        } else {
+            $data['profile'] = array(
+                'main()' => array(
+                    'wt' => (int) ((microtime(true) - (float) PROFILE_START) * 1000000),
+                    'ct' => 1,
+                    'pmu' => memory_get_peak_usage(true)
+                )
+            );
+        }
 
         // ignore_user_abort(true) allows your PHP script to continue executing, even if the user has terminated their request.
         // Further Reading: http://blog.preinheimer.com/index.php?/archives/248-When-does-a-user-abort.html

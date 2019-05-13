@@ -51,6 +51,7 @@ xhqui is located at `/xhgui`
 
 enable tracking with: `PHPINI_AUTO_PREPEND_FILE` set to `/xhgui/header.php` and following environment:
 
+- `XHGUI_FULL_PROFILING` (empty) enable to use xhprof else only request wall time and memory peak is tracked
 - `XHGUI_PROBABILITY` (`0`)
 - `XHGUI_MONGO_HOST` (`mongo-xh`)
 - `XHGUI_MONGO_DATABASE` (`xhprof`)

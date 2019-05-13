@@ -33,6 +33,7 @@ return array(
     'cache' => getenv('XHGUI_CACHE') ?: (getenv('APP_DATA') . '/xhgui_cache' ),
     'tideways.flags' => function() {
         return 7;  // CPU + MEMORY  see https://github.com/tideways/php-xhprof-extension/blob/master/tracing.h
-    }
+    },
+    'full_profiling' => getenv('XHGUI_FULL_PROFILING') ?: false
 
 );
