@@ -147,6 +147,7 @@ fi
 
 if [ $PACKAGE_FORMAT == "apk" ]; then
     apk add --no-cache \
+        fcgi \
         coreutils \
         freetype \
         libjpeg-turbo \
@@ -261,6 +262,8 @@ docker-php-ext-install -j$(nproc) \
     pdo_sqlite \
     mysqli \
     soap \
+    sockets \
+    bcmath \
     $EXT_EXTRA
 
 if [ -n "$TIDEWAYS_XHPROF" ]; then
