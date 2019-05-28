@@ -56,23 +56,27 @@ case $PHP_VERSION in
     7.0.*)
         NODE_VERSION=4.x
         NPM_VERSION=npm@5
-        APT_EXTRA=libmcrypt4
-        APT_DEV_EXTRA=libmcrypt-dev
+        APT_EXTRA="libmcrypt4 libsodium18"
+        APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA=mcrypt
+        PECL_EXTRA="ast libsodium"
     ;;
     7.1.*)
         NODE_VERSION=6.x
-        APT_EXTRA=libmcrypt4
-        APT_DEV_EXTRA=libmcrypt-dev
-        APK_EXTRA=libmcrypt
-        APK_DEV_EXTRA=libmcrypt-dev
+        APT_EXTRA="libmcrypt4 libsodium18"
+        APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
+        APK_EXTRA="libmcrypt libsodium"
+        APK_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA=mcrypt
+        PECL_EXTRA="ast libsodium"
     ;;
     7.2.*)
+        PECL_EXTRA=ast
     ;;
     7.3.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
+        PECL_EXTRA=ast
     ;;
     *)
         echo "not supported."
@@ -241,7 +245,11 @@ fi
 docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 for P in mongodb $MEMCACHED_VERSION $PECL_EXTRA; do
     pecl install $P
-    echo "extension=${P%-*}.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+    if [ "$P" = "libsodium" ]; then
+        echo "extension=sodium.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+    else
+        echo "extension=${P%-*}.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+    fi
 done
 if [ -z "$APCU_DISABLE" ]; then
     yes '' | pecl install apcu
