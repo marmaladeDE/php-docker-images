@@ -1,6 +1,6 @@
-FROM    php:5.6-apache
+FROM    php:7.4-rc-apache
 
-ARG     NODEJS_DISABLE=
+ARG     NODEJS_DISABLE=1
 
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 
@@ -27,9 +27,9 @@ ENV     WEB_ROOT=/app \
 
 COPY    apache2-foreground-user install-php /usr/local/bin/
 
-RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
+COPY    ./xhgui/ /xhgui/
 
-RUN     mkdir -p /xhgui && touch /xhgui/header.php
+RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
 
 WORKDIR /app
 

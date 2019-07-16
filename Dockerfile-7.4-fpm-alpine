@@ -1,0 +1,26 @@
+FROM    php:7.4-rc-fpm-alpine3.10
+
+ARG     NODEJS_DISABLE=
+
+# https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
+
+ENV     WEB_ROOT=/app \
+        COMPOSER_CACHE_DIR=/dev/null \
+        COMPOSER_ALLOW_SUPERUSER=1 \
+        COMPOSER_NO_INTERACTION=1
+
+RUN     apk add --no-cache bash
+
+COPY    apache2-foreground-user install-php /usr/local/bin/
+
+COPY    ./xhgui/ /xhgui/
+
+RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
+
+WORKDIR /app
+
+ENTRYPOINT ["/usr/bin/dumb-init","--rewrite","28:0", "--"]
+
+CMD     ["apache2-foreground-user"]
+
+# VOLUME /app/data

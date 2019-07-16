@@ -25,10 +25,18 @@ case "$ID" in
         APT_DEV_EXTRA=
         ;;
     alpine)
-        if [ "$PRETTY_NAME" != "Alpine Linux v3.9" ]; then
-            echo "alpine version must be 3.9 (got $PRETTY_NAME)"
-            exit -1
-        fi
+        case "$PRETTY_NAME" in
+            "Alpine Linux v3.10")
+                APK_EXTRA_DIST="libgcrypt libgpg-error"
+                APK_DEV_EXTRA_DIST="libgcrypt-dev libgpg-error-dev"
+            ;;
+            "Alpine Linux v3.9")
+            ;;
+            *)
+                echo "alpine version must be 3.9 or 3.10 (got $PRETTY_NAME)"
+                exit -1
+            ;;
+        esac
         PACKAGE_FORMAT=apk
         APK_EXTRA=
         APK_DEV_EXTRA=
@@ -89,6 +97,13 @@ case $PHP_VERSION in
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         PECL_EXTRA=ast
+    ;;
+    7.4.*)
+        XDEBUG_VERSION= # add xdebug when 7.4 ready
+        MEMCACHED_VERSION= # add memcached when 7.4 ready
+        APT_EXTRA=libzip4
+        APT_DEV_EXTRA=libzip-dev
+        PECL_EXTRA=  # add ast when 7.4 ready
     ;;
     *)
         echo "not supported."
@@ -188,7 +203,8 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
         curl \
         unzip \
         imagemagick \
-        $APK_EXTRA
+        $APK_EXTRA \
+        $APK_EXTRA_DIST
 
     apk add --no-cache --virtual .build-deps \
         freetype-dev \
@@ -207,7 +223,8 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
         sqlite-dev \
         imagemagick-dev \
         $(if [ -e "/etc/apache2/apache2.conf" ]; then echo libcap; fi) \
-        $APK_DEV_EXTRA
+        $APK_DEV_EXTRA \
+        $APK_DEV_EXTRA_DIST
 fi
 
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
@@ -271,14 +288,15 @@ if [ -z "$APCU_DISABLE" ]; then
     yes '' | pecl install apcu
     echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 fi
-pecl install $XDEBUG_VERSION
+if [ -z "$XDEBUG_VERSION" ]; then
+    pecl install $XDEBUG_VERSION
+fi
 docker-php-ext-install -j$(nproc) \
     opcache \
     tidy \
     iconv \
     curl \
     zip \
-    mbstring \
     intl \
     xmlrpc \
     xsl \
