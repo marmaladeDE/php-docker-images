@@ -274,7 +274,7 @@ if [ -e "/etc/locale.gen" ]; then
     /usr/sbin/update-locale LANG=en_US.UTF-8
 fi
 
-docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr
+docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-freetype-dir=/usr
 for P in mongodb imagick $MEMCACHED_VERSION $PECL_EXTRA; do
     echo pecl install $P
     pecl install $P
