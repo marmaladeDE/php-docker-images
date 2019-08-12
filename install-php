@@ -9,13 +9,11 @@ case "$ID" in
                 DEBIAN_LIBICU=libicu63
                 DEBIAN_LIBTIDY=libtidy5deb1
                 DEBIAN_LIBSODIUM=libsodium23
-                DEBIAN_LIBWEBP=libwebp6
             ;;
             "9 (stretch)")
                 DEBIAN_LIBICU=libicu57
                 DEBIAN_LIBTIDY=libtidy5
                 DEBIAN_LIBSODIUM=libsodium18
-                DEBIAN_LIBWEBP=libwebp5
             ;;
             *)
                 echo "debian version must be strech or buster (got $VERSION)"
@@ -152,7 +150,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         libcurl4-openssl-dev \
         libpng16-16 \
         libpng-dev \
-        $DEBIAN_LIBWEBP \
+        libwebp6 \
         libwebp-dev \
         libxslt1.1 \
         libxslt1-dev \
