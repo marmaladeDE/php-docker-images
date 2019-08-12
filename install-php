@@ -7,13 +7,15 @@ case "$ID" in
         case "$VERSION" in
             "10 (buster)")
                 DEBIAN_LIBICU=libicu63
-                DEBIAN_LIBTITY=libtidy5deb1
+                DEBIAN_LIBTIDY=libtidy5deb1
                 DEBIAN_LIBSODIUM=libsodium23
+                DEBIAN_LIBWEBP=libwebp6
             ;;
             "9 (stretch)")
                 DEBIAN_LIBICU=libicu57
-                DEBIAN_LIBTITY=libtidy5
+                DEBIAN_LIBTIDY=libtidy5
                 DEBIAN_LIBSODIUM=libsodium18
+                DEBIAN_LIBWEBP=libwebp5
             ;;
             *)
                 echo "debian version must be strech or buster (got $VERSION)"
@@ -99,11 +101,10 @@ case $PHP_VERSION in
         PECL_EXTRA=ast
     ;;
     7.4.*)
-        XDEBUG_VERSION= # add xdebug when 7.4 ready
-        MEMCACHED_VERSION= # add memcached when 7.4 ready
+        XDEBUG_VERSION=xdebug-beta
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
-        PECL_EXTRA=  # add ast when 7.4 ready
+        PECL_EXTRA=ast
     ;;
     *)
         echo "not supported."
@@ -151,13 +152,15 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         libcurl4-openssl-dev \
         libpng16-16 \
         libpng-dev \
+        $DEBIAN_LIBWEBP \
+        libwebp-dev \
         libxslt1.1 \
         libxslt1-dev \
         libxml2-dev \
         $DEBIAN_LIBICU \
         icu-devtools \
         libicu-dev \
-        $DEBIAN_LIBTITY \
+        $DEBIAN_LIBTIDY \
         libtidy-dev \
         zlib1g-dev \
         libxml2-dev \
@@ -169,7 +172,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         git \
         mercurial \
         postgresql-client-common \
-        postgresql-server-dev-all \
+        libpq-dev \
         libsqlite3-dev \
         libssl-dev \
         libmagickwand-dev \
@@ -187,6 +190,7 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
         freetype \
         libjpeg-turbo \
         libpng \
+        libwebp \
         curl \
         libxslt \
         libxml2 \
@@ -210,6 +214,7 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
         freetype-dev \
         libjpeg-turbo-dev \
         libpng-dev \
+        libwebp-dev \
         curl-dev \
         libxslt-dev \
         libxml2-dev \
@@ -274,7 +279,7 @@ if [ -e "/etc/locale.gen" ]; then
     /usr/sbin/update-locale LANG=en_US.UTF-8
 fi
 
-docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-freetype-dir=/usr
+docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr --with-freetype-dir=/usr
 for P in mongodb imagick $MEMCACHED_VERSION $PECL_EXTRA; do
     echo pecl install $P
     pecl install $P
@@ -288,7 +293,7 @@ if [ -z "$APCU_DISABLE" ]; then
     yes '' | pecl install apcu
     echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 fi
-if [ -z "$XDEBUG_VERSION" ]; then
+if [ -n "$XDEBUG_VERSION" ]; then
     pecl install $XDEBUG_VERSION
 fi
 docker-php-ext-install -j$(nproc) \
@@ -339,6 +344,7 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
         libjpeg62-turbo-dev \
         libcurl4-openssl-dev \
         libpng-dev \
+        libwebp-dev \
         libxslt1-dev \
         libxml2-dev \
         libicu-dev \
@@ -387,3 +393,5 @@ if [ -e "/etc/bash.bashrc" ]; then
 else
     echo 'export PS1='"'"'🐳  \u@\h:\w \$ '"'" > /etc/profile.d/docker_prompt.sh
 fi
+
+rm -rf /tmp/*
