@@ -387,7 +387,7 @@ fi
 curl https://raw.githubusercontent.com/mcnilz/minicron/master/minicron > /usr/local/bin/minicron && chmod +x /usr/local/bin/minicron
 
 if [ -e "/etc/bash.bashrc" ]; then
-    sed -i -E "s/^PS1='/PS1='🐳  /" /etc/bash.bashrc
+    sed -i -E "s/^( *)PS1='/\1PS1='🐳  /" /etc/bash.bashrc
 else
     echo 'export PS1='"'"'🐳  \u@\h:\w \$ '"'" > /etc/profile.d/docker_prompt.sh
 fi
