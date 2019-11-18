@@ -58,7 +58,7 @@ EXT_EXTRA=
 APT_EXTRA=
 APT_DEV_EXTRA=
 PECL_EXTRA=
-TIDEWAYS_XHPROF=5.0.0
+TIDEWAYS_XHPROF=5.0.2
 
 case $PHP_VERSION in
     5.6.*)
@@ -99,7 +99,6 @@ case $PHP_VERSION in
         PECL_EXTRA=ast
     ;;
     7.4.*)
-        XDEBUG_VERSION=xdebug-beta
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         PECL_EXTRA=ast

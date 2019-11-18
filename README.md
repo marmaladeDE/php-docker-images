@@ -2,6 +2,8 @@
 
 ## tags
 
+- [![](https://images.microbadger.com/badges/image/webvariants/php:7.4.svg)](https://microbadger.com/images/webvariants/php:7.4 "Get your own image badge on microbadger.com") ``7.4``
+- [![](https://images.microbadger.com/badges/image/webvariants/php:7.4-fpm-alpine.svg)](https://microbadger.com/images/webvariants/php:7.4-fpm-alpine "Get your own image badge on microbadger.com") ``7.4-fpm-alpine``
 - [![](https://images.microbadger.com/badges/image/webvariants/php:7.3.svg)](https://microbadger.com/images/webvariants/php:7.3 "Get your own image badge on microbadger.com") ``7.3`` security until 6 Dec 2021
 - [![](https://images.microbadger.com/badges/image/webvariants/php:7.3-fpm-alpine.svg)](https://microbadger.com/images/webvariants/php:7.3-fpm-alpine "Get your own image badge on microbadger.com") ``7.3-fpm-alpine`` security until 6 Dec 2021
 - [![](https://images.microbadger.com/badges/image/webvariants/php:7.2.svg)](https://microbadger.com/images/webvariants/php:7.2 "Get your own image badge on microbadger.com") ``7.2`` security until 30 Nov 2020
