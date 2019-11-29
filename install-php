@@ -59,6 +59,7 @@ APT_EXTRA=
 APT_DEV_EXTRA=
 PECL_EXTRA=
 TIDEWAYS_XHPROF=5.0.2
+LEGACY_XHPROF=
 
 case $PHP_VERSION in
     5.6.*)
@@ -72,6 +73,7 @@ case $PHP_VERSION in
         MEMCACHED_VERSION=memcached-2.2.0
         PECL_EXTRA=memcache
         TIDEWAYS_XHPROF=
+        LEGACY_XHPROF=0.9.4
     ;;
     7.0.*)
         NODE_VERSION=4.x
@@ -323,6 +325,11 @@ if [ -n "$TIDEWAYS_XHPROF" ]; then
     rm -r /tmp/tideways_xhprof
 fi
 
+if [ -n "$LEGACY_XHPROF" ]; then
+    pecl install xhprof-$LEGACY_XHPROF
+    echo "extension=xhprof.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
+fi
+
 if [ -e "/etc/apache2/apache2.conf" ]; then
     if [ -e "/usr/sbin/setcap" ]; then
         SETCAP=/usr/sbin/setcap
@@ -364,7 +371,7 @@ fi
 php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
 ln -s /bin/composer.phar /bin/composer
 
-if [ -n "$TIDEWAYS_XHPROF" ] && [ -e '/xhgui/config/config.php' ]; then
+if ([ -n "$TIDEWAYS_XHPROF" ] || [ -n "$LEGACY_XHPROF" ]) && [ -e '/xhgui/config/config.php' ]; then
     curl -fsSL https://github.com/perftools/xhgui/archive/master.tar.gz -o xhgui.tar.gz
     mkdir -p /xhgui
     tar -xf xhgui.tar.gz -C /xhgui --strip-components=1

@@ -27,9 +27,9 @@ ENV     WEB_ROOT=/app \
 
 COPY    apache2-foreground-user install-php /usr/local/bin/
 
-RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
+COPY    ./xhgui/ /xhgui/
 
-RUN     mkdir -p /xhgui && touch /xhgui/header.php
+RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
 
 WORKDIR /app
 

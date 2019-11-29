@@ -1,8 +1,13 @@
 <?php
 
-if (!extension_loaded('tideways_xhprof')) {
-    error_log('xhgui - tideways_xhprof must be loaded');
-    return;
+if (extension_loaded('tideways_xhprof')) {
+    define('XHGUI_TIDEWAYS_XHPROF', 1);
+} else {
+    if (!extension_loaded('xhprof')) {
+        # error_log('xhgui - xhprof or tideways_xhprof must be loaded');  # be silent
+        return;
+    }
+    define('XHGUI_TIDEWAYS_XHPROF', 0);
 }
 
 define('XHGUI_CONFIG_DIR', __DIR__ . '/config/');
@@ -29,7 +34,11 @@ if ($full_profiling) {
     if (is_callable($flags)) {
         $flags = $flags();
     }
-    tideways_xhprof_enable($flags);
+    if (XHGUI_TIDEWAYS_XHPROF) {
+        tideways_xhprof_enable($flags);
+    } else {
+        xhprof_enable($flags);
+    }
     unset($flags);
 }
 else {
@@ -40,7 +49,14 @@ unset($full_profiling);
 register_shutdown_function(
     function () {
         if (Xhgui_Config::read('full_profiling')) {
-            $data['profile'] = tideways_xhprof_disable();
+            $data['profile'] = XHGUI_TIDEWAYS_XHPROF ? tideways_xhprof_disable() : xhprof_disable();
+            if (!XHGUI_TIDEWAYS_XHPROF) {
+                $profile = [];
+                foreach((array) $data['profile'] as $key => $value) {
+                    $profile[strtr($key, ['.' => '_'])] = $value;
+                }
+                $data['profile'] = $profile;
+            }
         } else {
             $data['profile'] = array(
                 'main()' => array(
