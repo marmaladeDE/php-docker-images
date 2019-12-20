@@ -71,7 +71,7 @@ case $PHP_VERSION in
         EXT_EXTRA="mysql mcrypt"
         XDEBUG_VERSION=xdebug-2.5.5
         MEMCACHED_VERSION=memcached-2.2.0
-        PECL_EXTRA=memcache
+        PECL_EXTRA=memcache-3.0.8
         TIDEWAYS_XHPROF=
         LEGACY_XHPROF=0.9.4
     ;;
