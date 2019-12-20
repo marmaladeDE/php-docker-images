@@ -60,6 +60,7 @@ APT_DEV_EXTRA=
 PECL_EXTRA=
 TIDEWAYS_XHPROF=5.0.2
 LEGACY_XHPROF=
+GD_OPTIONS="--with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr --with-freetype-dir=/usr"
 
 case $PHP_VERSION in
     5.6.*)
@@ -104,6 +105,7 @@ case $PHP_VERSION in
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         PECL_EXTRA=ast
+        GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
     ;;
     *)
         echo "not supported."
@@ -278,7 +280,7 @@ if [ -e "/etc/locale.gen" ]; then
     /usr/sbin/update-locale LANG=en_US.UTF-8
 fi
 
-docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr --with-freetype-dir=/usr
+docker-php-ext-configure gd $GD_OPTIONS
 for P in mongodb imagick $MEMCACHED_VERSION $PECL_EXTRA; do
     echo pecl install $P
     pecl install $P
