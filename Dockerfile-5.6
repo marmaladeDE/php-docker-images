@@ -4,6 +4,8 @@ ARG     NODEJS_DISABLE=
 
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 
+ENV     WARNING="Warning: This PHP version is not maintained anymore! Message to data security officer has been sent."
+
 ENV     WEB_ROOT=/app \
         WEB_PORT=80 \
         COMPOSER_CACHE_DIR=/dev/null \

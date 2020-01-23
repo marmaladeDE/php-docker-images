@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+if [ -n "$WARNING" ]; then
+	echo "$WARNING" >&2
+fi
+
 function var_default {
 	if [ -z "${!1}" ]; then
 		export $1="$2"
