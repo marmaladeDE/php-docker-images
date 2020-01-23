@@ -82,6 +82,7 @@ case $PHP_VERSION in
         APT_EXTRA="libmcrypt4 $DEBIAN_LIBSODIUM"
         APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA=mcrypt
+        XDEBUG_VERSION=xdebug-2.9.0
         PECL_EXTRA="ast memcache libsodium"
     ;;
     7.1.*)
