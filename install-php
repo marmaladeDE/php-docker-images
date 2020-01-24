@@ -26,6 +26,8 @@ case "$ID" in
         ;;
     alpine)
         case "$PRETTY_NAME" in
+            "Alpine Linux v3.11")
+            ;;
             "Alpine Linux v3.10")
                 APK_EXTRA_DIST="libgcrypt libgpg-error"
                 APK_DEV_EXTRA_DIST="libgcrypt-dev libgpg-error-dev"
@@ -33,7 +35,7 @@ case "$ID" in
             "Alpine Linux v3.9")
             ;;
             *)
-                echo "alpine version must be 3.9 or 3.10 (got $PRETTY_NAME)"
+                echo "alpine version must be 3.9, 3.10 or 3.11 (got $PRETTY_NAME)"
                 exit -1
             ;;
         esac
