@@ -7,7 +7,7 @@ fi
 
 exec docker build \
 	--pull \
-	--tag webvariants/php:$1 \
+	--tag makaira/php:$1 \
 	--force-rm \
 	--memory 256MB \
 	--memory-swap 512MB \
