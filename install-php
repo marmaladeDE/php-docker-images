@@ -58,8 +58,6 @@ EXT_EXTRA=
 APT_EXTRA=
 APT_DEV_EXTRA=
 PECL_EXTRA="ast memcache"
-TIDEWAYS_XHPROF=5.0.4
-LEGACY_XHPROF=
 GD_OPTIONS="--with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr --with-freetype-dir=/usr"
 
 case $PHP_VERSION in
@@ -71,8 +69,6 @@ case $PHP_VERSION in
         XDEBUG_VERSION=xdebug-2.5.5
         MEMCACHED_VERSION=memcached-2.2.0
         PECL_EXTRA="imagick memcache-3.0.8 mongodb-1.7.5"
-        TIDEWAYS_XHPROF=
-        LEGACY_XHPROF=0.9.4
     ;;
     7.0.*)
         APT_EXTRA="libmcrypt4 $DEBIAN_LIBSODIUM"
@@ -278,21 +274,6 @@ docker-php-ext-install -j$(nproc) \
     bcmath \
     exif \
     $EXT_EXTRA
-
-if [ -n "$TIDEWAYS_XHPROF" ]; then
-    curl -fsSL "https://github.com/tideways/php-xhprof-extension/archive/v${TIDEWAYS_XHPROF}.tar.gz" -o tideways_xhprof.tar.gz
-    mkdir -p /tmp/tideways_xhprof
-    tar -xf tideways_xhprof.tar.gz -C /tmp/tideways_xhprof --strip-components=1
-    rm tideways_xhprof.tar.gz
-    docker-php-ext-configure /tmp/tideways_xhprof --enable-tideways_xhprof
-    docker-php-ext-install /tmp/tideways_xhprof
-    rm -r /tmp/tideways_xhprof
-fi
-
-if [ -n "$LEGACY_XHPROF" ]; then
-    pecl install xhprof-$LEGACY_XHPROF
-    echo "extension=xhprof.so" >> /usr/local/etc/php/conf.d/pecl_exts.ini
-fi
 
 if [ -e "/etc/apache2/apache2.conf" ]; then
     if [ -e "/usr/sbin/setcap" ]; then
