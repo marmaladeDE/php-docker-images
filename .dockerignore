@@ -4,3 +4,4 @@ build
 build-all
 .gitignore
 .idea
+.gitlab-ci.yml
