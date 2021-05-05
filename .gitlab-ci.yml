@@ -4,8 +4,8 @@ stages:
 .build:
   stage: build
   script:
-    - ./build $PHP_VERSION
-    - docker push localhost:5000/makaira/php:$PHP_VERSION
+    - ./build ${PHP_VERSION}
+    - "docker push localhost:5000/makaira/php:${PHP_VERSION}"
 
 build:5.6:
   extends: .build
