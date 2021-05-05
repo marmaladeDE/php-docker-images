@@ -9,7 +9,7 @@ exec docker build \
 	--pull \
 	--tag makaira/php:$1 \
 	--force-rm \
-	--memory 256MB \
-	--memory-swap 512MB \
+	--memory 4096MB \
+	--memory-swap 4096MB \
 	-f Dockerfile-$1 \
 	.
