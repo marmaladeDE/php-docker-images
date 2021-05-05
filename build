@@ -7,7 +7,7 @@ fi
 
 exec docker build \
 	--pull \
-	--tag makaira/php:$1 \
+	--tag localhost:5000/makaira/php:${PHP_VERSION} \
 	--force-rm \
 	--memory 4096MB \
 	--memory-swap 4096MB \
