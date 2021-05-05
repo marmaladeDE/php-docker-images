@@ -52,60 +52,65 @@ esac
 echo "PHP VERSION: $PHP_VERSION"
 
 APCU_DISABLE=
-NPM_VERSION=npm
-NODE_VERSION=8.x
 XDEBUG_VERSION=xdebug
 MEMCACHED_VERSION=memcached
 EXT_EXTRA=
 APT_EXTRA=
 APT_DEV_EXTRA=
 PECL_EXTRA="ast memcache"
-TIDEWAYS_XHPROF=5.0.2
+TIDEWAYS_XHPROF=5.0.4
 LEGACY_XHPROF=
 GD_OPTIONS="--with-png-dir=/usr --with-jpeg-dir=/usr --with-webp-dir=/usr --with-freetype-dir=/usr"
 
 case $PHP_VERSION in
     5.6.*)
         APCU_DISABLE=1
-        NODE_VERSION=4.x
-        NPM_VERSION=npm@5
         APT_EXTRA=libmcrypt4
         APT_DEV_EXTRA=libmcrypt-dev
-        EXT_EXTRA="mysql mcrypt"
+        EXT_EXTRA="mysql mcrypt xmlrpc"
         XDEBUG_VERSION=xdebug-2.5.5
         MEMCACHED_VERSION=memcached-2.2.0
-        PECL_EXTRA="memcache-3.0.8"
+        PECL_EXTRA="imagick memcache-3.0.8"
         TIDEWAYS_XHPROF=
         LEGACY_XHPROF=0.9.4
     ;;
     7.0.*)
-        NODE_VERSION=4.x
-        NPM_VERSION=npm@5
         APT_EXTRA="libmcrypt4 $DEBIAN_LIBSODIUM"
         APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
-        EXT_EXTRA=mcrypt
+        EXT_EXTRA="mcrypt xmlrpc"
         XDEBUG_VERSION=xdebug-2.9.0
-        PECL_EXTRA="ast memcache libsodium"
+        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium"
     ;;
     7.1.*)
-        NODE_VERSION=6.x
         APT_EXTRA="libmcrypt4 $DEBIAN_LIBSODIUM"
         APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         APK_EXTRA="libmcrypt libsodium"
         APK_DEV_EXTRA="libmcrypt-dev libsodium-dev"
-        EXT_EXTRA=mcrypt
-        PECL_EXTRA="ast memcache libsodium"
+        EXT_EXTRA="mcrypt xmlrpc"
+        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium"
     ;;
     7.2.*)
+        PECL_EXTRA="imagick memcache-4.0.5.2"
+        EXT_EXTRA="xmlrpc"
     ;;
     7.3.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
+        PECL_EXTRA="imagick memcache-4.0.5.2"
+        EXT_EXTRA="xmlrpc"
     ;;
     7.4.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
+        PECL_EXTRA="imagick memcache-4.0.5.2"
+        EXT_EXTRA="xmlrpc"
+    ;;
+    8.0.*)
+        APT_EXTRA=libzip4
+        APT_DEV_EXTRA=libzip-dev
+        GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
+        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC2"
     ;;
     *)
         echo "not supported."
@@ -135,15 +140,6 @@ if [ $PACKAGE_FORMAT == "apt" ]; then
     echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache
     apt-get update && apt-get install -y gnupg2
-    if [ -z $NODEJS_DISABLE ]; then
-        >&2 echo "DEPRECATION: nodejs will be removed in the future of this image!"
-        curl -sL https://deb.nodesource.com/setup_$NODE_VERSION | bash -
-        echo -e "Package: *\nPin: origin deb.nodesource.com\nPin-Priority: 1001\n" >> /etc/apt/preferences.d/nodesource
-        apt-get install -y nodejs
-        npm install --quiet -g $NPM_VERSION
-        npm install --quiet -g grunt-cli bower
-        npm cache clean --force
-    fi
     apt-get install -y \
         dumb-init \
         nano \
@@ -235,40 +231,6 @@ fi
 
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
-if [ -e "/etc/apache2/apache2.conf" ]; then
-    if [ $PACKAGE_FORMAT == "apt" ]; then
-        apt-get install -y libapache2-mod-security2
-    fi
-    a2enmod rewrite headers expires security2
-
-    cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRuleEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRequestBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRequestBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRequestBodyNoFilesLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRequestBodyInMemoryLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecRequestBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecResponseBodyAccess) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecResponseBodyMimeType) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecResponseBodyLimit) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecResponseBodyLimitAction) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecTmpDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecDataDir) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecAuditEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecAuditLogParts) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    sed -i -E "s/^(SecStatusEngine) .+$/\1 \$\{\1\}/g" /etc/modsecurity/modsecurity.conf
-    cd /usr/share
-    curl -L https://github.com/SpiderLabs/owasp-modsecurity-crs/archive/v3.0.2.tar.gz | tar xvz
-    mv modsecurity-crs modsecurity-crs-old
-    mv owasp-modsecurity-crs-3.0.2 modsecurity-crs
-    echo 'SecAction "id:900990, phase:1, nolog, pass, t:none, setvar:tx.crs_setup_version=310"' > modsecurity-crs/owasp-crs.load
-    echo "Include /usr/share/modsecurity-crs/rules/*.conf" >> modsecurity-crs/owasp-crs.load
-    touch modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
-    chmod o+w modsecurity-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS-DOCKER.conf
-    cd /var/log/apache2
-    ln -s /dev/stderr modsec_audit.log
-fi
-
 if [ -e "/etc/locale.gen" ]; then
     echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -281,7 +243,7 @@ if [ -e "/etc/locale.gen" ]; then
 fi
 
 docker-php-ext-configure gd $GD_OPTIONS
-for P in mongodb imagick $MEMCACHED_VERSION $PECL_EXTRA; do
+for P in mongodb $MEMCACHED_VERSION $PECL_EXTRA; do
     echo pecl install $P
     pecl install $P
     if [ "$P" = "libsodium" ]; then
@@ -304,7 +266,6 @@ docker-php-ext-install -j$(nproc) \
     curl \
     zip \
     intl \
-    xmlrpc \
     xsl \
     gd \
     pdo_mysql \

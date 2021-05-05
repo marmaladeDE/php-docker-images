@@ -10,22 +10,7 @@ ENV     WEB_ROOT=/app \
         WEB_PORT=80 \
         COMPOSER_CACHE_DIR=/dev/null \
         COMPOSER_ALLOW_SUPERUSER=1 \
-        COMPOSER_NO_INTERACTION=1 \
-        SecRuleEngine=DetectionOnly \
-        SecRequestBodyAccess=On \
-        SecRequestBodyLimit=13107200 \
-        SecRequestBodyNoFilesLimit=131072 \
-        SecRequestBodyInMemoryLimit=131072 \
-        SecRequestBodyLimitAction=ProcessPartial \
-        SecResponseBodyAccess=On \
-        SecResponseBodyMimeType="text/plain text/html text/xml" \
-        SecResponseBodyLimit=524288 \
-        SecResponseBodyLimitAction=ProcessPartial \
-        SecTmpDir=/tmp/ \
-        SecDataDir=/tmp/ \
-        SecAuditEngine=Off \
-        SecAuditLogParts=ABDEFHIJZ \
-        SecStatusEngine=On
+        COMPOSER_NO_INTERACTION=1
 
 COPY    apache2-foreground-user install-php /usr/local/bin/
 
