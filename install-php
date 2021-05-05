@@ -83,6 +83,7 @@ case $PHP_VERSION in
         APK_EXTRA="libmcrypt libsodium"
         APK_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA="mcrypt xmlrpc"
+        XDEBUG_VERSION=xdebug-2.9.0
         PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium mongodb"
     ;;
     7.2.*)
