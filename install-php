@@ -70,7 +70,7 @@ case $PHP_VERSION in
         EXT_EXTRA="mysql mcrypt xmlrpc"
         XDEBUG_VERSION=xdebug-2.5.5
         MEMCACHED_VERSION=memcached-2.2.0
-        PECL_EXTRA="imagick memcache-3.0.8"
+        PECL_EXTRA="imagick memcache-3.0.8 mongodb-1.7.5"
         TIDEWAYS_XHPROF=
         LEGACY_XHPROF=0.9.4
     ;;
@@ -79,7 +79,7 @@ case $PHP_VERSION in
         APT_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA="mcrypt xmlrpc"
         XDEBUG_VERSION=xdebug-2.9.0
-        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium"
+        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium mongodb"
     ;;
     7.1.*)
         APT_EXTRA="libmcrypt4 $DEBIAN_LIBSODIUM"
@@ -87,30 +87,30 @@ case $PHP_VERSION in
         APK_EXTRA="libmcrypt libsodium"
         APK_DEV_EXTRA="libmcrypt-dev libsodium-dev"
         EXT_EXTRA="mcrypt xmlrpc"
-        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium"
+        PECL_EXTRA="ast imagick memcache-4.0.5.2 libsodium mongodb"
     ;;
     7.2.*)
-        PECL_EXTRA="imagick memcache-4.0.5.2"
+        PECL_EXTRA="imagick memcache-4.0.5.2 mongodb"
         EXT_EXTRA="xmlrpc"
     ;;
     7.3.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
-        PECL_EXTRA="imagick memcache-4.0.5.2"
+        PECL_EXTRA="imagick memcache-4.0.5.2 mongodb"
         EXT_EXTRA="xmlrpc"
     ;;
     7.4.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
-        PECL_EXTRA="imagick memcache-4.0.5.2"
+        PECL_EXTRA="imagick memcache-4.0.5.2 mongodb"
         EXT_EXTRA="xmlrpc"
     ;;
     8.0.*)
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
-        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC2"
+        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC2 mongodb"
     ;;
     *)
         echo "not supported."
@@ -243,7 +243,8 @@ if [ -e "/etc/locale.gen" ]; then
 fi
 
 docker-php-ext-configure gd $GD_OPTIONS
-for P in mongodb $MEMCACHED_VERSION $PECL_EXTRA; do
+pecl channel-update pecl.php.net
+for P in $MEMCACHED_VERSION $PECL_EXTRA; do
     echo pecl install $P
     pecl install $P
     if [ "$P" = "libsodium" ]; then
@@ -333,15 +334,6 @@ fi
 
 php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
 ln -s /bin/composer.phar /bin/composer
-
-if ([ -n "$TIDEWAYS_XHPROF" ] || [ -n "$LEGACY_XHPROF" ]) && [ -e '/xhgui/config/config.php' ]; then
-    curl -fsSL https://github.com/perftools/xhgui/archive/master.tar.gz -o xhgui.tar.gz
-    mkdir -p /xhgui
-    tar -xf xhgui.tar.gz -C /xhgui --strip-components=1
-    rm xhgui.tar.gz
-    cd /xhgui
-    composer.phar install
-fi
 
 if [ -e "/usr/share/doc" ]; then
     rm -r /usr/share/doc
