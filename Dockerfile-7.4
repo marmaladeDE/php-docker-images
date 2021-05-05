@@ -13,8 +13,6 @@ ENV     WEB_ROOT=/app \
 
 COPY    apache2-foreground-user install-php /usr/local/bin/
 
-COPY    ./xhgui/ /xhgui/
-
 RUN     /usr/local/bin/install-php && rm /usr/local/bin/install-php
 
 WORKDIR /app
