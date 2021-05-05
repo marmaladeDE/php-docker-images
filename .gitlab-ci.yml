@@ -2,37 +2,96 @@ stages:
   - build
   - push
 
-build:5.6:
+.build:
   stage: build
   script:
-    - ./build 5.6
+    - ./build $PHP_VERSION
+
+.push:
+  stage: push
+  script:
+    - docker push localhost:5000/makaira/php:$PHP_VERSION
+
+build:5.6:
+  extends: .build
+  variables:
+    PHP_VERSION: "5.6"
+
+push:5.6:
+  extends: .push
+  dependencies:
+    - build:5.6
+  variables:
+    PHP_VERSION: "5.6"
 
 build:7.0:
-  stage: build
-  script:
-    - ./build 7.0
+  extends: .build
+  variables:
+    PHP_VERSION: "7.0"
+
+push:7.0:
+  extends: .push
+  dependencies:
+    - build:7.0
+  variables:
+    PHP_VERSION: "7.0"
 
 build:7.1:
-  stage: build
-  script:
-    - ./build 7.1
+  extends: .build
+  variables:
+    PHP_VERSION: "7.1"
+
+push:7.1:
+  extends: .push
+  dependencies:
+    - build:7.1
+  variables:
+    PHP_VERSION: "7.1"
 
 build:7.2:
-  stage: build
-  script:
-    - ./build 7.2
+  extends: .build
+  variables:
+    PHP_VERSION: "7.2"
+
+push:7.2:
+  extends: .push
+  dependencies:
+    - build:7.2
+  variables:
+    PHP_VERSION: "7.2"
 
 build:7.3:
-  stage: build
-  script:
-    - ./build 7.3
+  extends: .build
+  variables:
+    PHP_VERSION: "7.3"
+
+push:7.3:
+  extends: .push
+  dependencies:
+    - build:7.3
+  variables:
+    PHP_VERSION: "7.3"
 
 build:7.4:
-  stage: build
-  script:
-    - ./build 7.4
+  extends: .build
+  variables:
+    PHP_VERSION: "7.4"
+
+push:7.4:
+  extends: .push
+  dependencies:
+    - build:7.4
+  variables:
+    PHP_VERSION: "7.4"
 
 build:8.0:
-  stage: build
-  script:
-    - ./build 80
+  extends: .build
+  variables:
+    PHP_VERSION: "8.0"
+
+push:8.0:
+  extends: .push
+  dependencies:
+    - build:8.0
+  variables:
+    PHP_VERSION: "8.0"
