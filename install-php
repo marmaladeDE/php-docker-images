@@ -228,6 +228,8 @@ fi
 
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
+a2enmod rewrite headers expires
+
 if [ -e "/etc/locale.gen" ]; then
     echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
