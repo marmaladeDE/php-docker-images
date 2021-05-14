@@ -2,7 +2,7 @@ stages:
   - build
 
 variables:
-  DOCKER_REGISTRY: docker-hub.makaira.cloud:5000
+  DOCKER_REGISTRY: docker-hub.makaira.cloud
 
 .build:
   stage: build
