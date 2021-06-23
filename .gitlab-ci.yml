@@ -8,7 +8,7 @@ variables:
   stage: build
   script:
     - ./build ${PHP_VERSION}
-    - "docker login --username ${ACCESS_TOKEN_USER} --pasword ${ACCESS_TOKEN}"
+    - "docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}"
     - "docker push ${DOCKER_REGISTRY}/marmaladegmbh/php:${PHP_VERSION}"
 
 build:5.6:
