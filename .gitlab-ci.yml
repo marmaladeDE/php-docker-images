@@ -2,13 +2,14 @@ stages:
   - build
 
 variables:
-  DOCKER_REGISTRY: docker-hub.makaira.cloud
+  DOCKER_REGISTRY: index.docker.io
 
 .build:
   stage: build
   script:
     - ./build ${PHP_VERSION}
-    - "docker push ${DOCKER_REGISTRY}/makaira/php:${PHP_VERSION}"
+    - "docker login --username ${ACCESS_TOKEN_USER} --pasword ${ACCESS_TOKEN}"
+    - "docker push ${DOCKER_REGISTRY}/marmaladegmbh/php:${PHP_VERSION}"
 
 build:5.6:
   extends: .build
