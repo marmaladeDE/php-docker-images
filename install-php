@@ -5,6 +5,11 @@
 case "$ID" in
     debian)
         case "$VERSION" in
+            "11 (bullseye)")
+                DEBIAN_LIBICU=libicu67
+                DEBIAN_LIBTIDY=libtidy5deb1
+                DEBIAN_LIBSODIUM=libsodium23
+            ;;
             "10 (buster)")
                 DEBIAN_LIBICU=libicu63
                 DEBIAN_LIBTIDY=libtidy5deb1
