@@ -321,9 +321,6 @@ if [ $PACKAGE_FORMAT == "apk" ]; then
     apk del --no-network .build-deps
 fi
 
-php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
-ln -s /bin/composer.phar /bin/composer
-
 EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
