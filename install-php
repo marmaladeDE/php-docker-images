@@ -324,6 +324,23 @@ fi
 php -r "readfile('https://getcomposer.org/installer');" > /bin/composer-setup.php && php /bin/composer-setup.php --install-dir=/bin
 ln -s /bin/composer.phar /bin/composer
 
+EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
+then
+    >&2 echo 'ERROR: Invalid installer checksum'
+    rm composer-setup.php
+    exit 1
+fi
+
+php composer-setup.php --quiet --1 --install-dir=/bin --filename=composer1
+php composer-setup.php --quiet --2 --install-dir=/bin --filename=composer2
+rm composer-setup.php
+
+ln -snf /bin/composer2 /bin/composer
+
 if [ -e "/usr/share/doc" ]; then
     rm -r /usr/share/doc
 fi

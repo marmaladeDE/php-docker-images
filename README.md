@@ -1,19 +1,7 @@
-# webvariants/php
-
-## tags
-
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.4.svg)](https://microbadger.com/images/webvariants/php:7.4 "Get your own image badge on microbadger.com") ``7.4``
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.4-fpm-alpine.svg)](https://microbadger.com/images/webvariants/php:7.4-fpm-alpine "Get your own image badge on microbadger.com") ``7.4-fpm-alpine``
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.3.svg)](https://microbadger.com/images/webvariants/php:7.3 "Get your own image badge on microbadger.com") ``7.3`` security until 6 Dec 2021
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.3-fpm-alpine.svg)](https://microbadger.com/images/webvariants/php:7.3-fpm-alpine "Get your own image badge on microbadger.com") ``7.3-fpm-alpine`` security until 6 Dec 2021
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.2.svg)](https://microbadger.com/images/webvariants/php:7.2 "Get your own image badge on microbadger.com") ``7.2`` security until 30 Nov 2020
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.1.svg)](https://microbadger.com/images/webvariants/php:7.1 "Get your own image badge on microbadger.com") ``7.1`` security until 1 Dec 2019
-- [![](https://images.microbadger.com/badges/image/webvariants/php:7.0.svg)](https://microbadger.com/images/webvariants/php:7.0 "Get your own image badge on microbadger.com") ``7.0`` end of life
-- [![](https://images.microbadger.com/badges/image/webvariants/php:5.6.svg)](https://microbadger.com/images/webvariants/php:5.6 "Get your own image badge on microbadger.com") ``5.6`` end of life
+# marmaladegmbh/php
 
 ## environment variables
 
-- `PHP_IMAGE_VERSION` (empty) please set to `2` to be up to date and not in legacy mode!
 - `WEB_ROOT` (`/app`)
 - `APP_DATA` (`/app/data`)
 - `WWW_USER` (www-data)
