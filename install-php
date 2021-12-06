@@ -112,7 +112,13 @@ case $PHP_VERSION in
         APT_EXTRA=libzip4
         APT_DEV_EXTRA=libzip-dev
         GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
-        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC2 mongodb"
+        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC3 mongodb"
+    ;;
+    8.1.*)
+        APT_EXTRA=libzip4
+        APT_DEV_EXTRA=libzip-dev
+        GD_OPTIONS="--with-jpeg --with-webp --with-freetype"
+        PECL_EXTRA="memcache-8.0 xmlrpc-1.0.0RC3 mongodb"
     ;;
     *)
         echo "not supported."
