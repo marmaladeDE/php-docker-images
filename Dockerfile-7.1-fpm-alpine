@@ -2,6 +2,9 @@ FROM    php:7.1-fpm-alpine3.9
 
 ARG     NODEJS_DISABLE=
 
+RUN sed -Ei 's@^mozilla/DST_Root_CA_X3.crt$@!mozilla/DST_Root_CA_X3.crt@g' /etc/ca-certificates.conf && \
+    update-ca-certificates
+
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 
 ENV     WEB_ROOT=/app \

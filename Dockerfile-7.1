@@ -2,6 +2,9 @@ FROM    php:7.1-apache
 
 ARG     NODEJS_DISABLE=
 
+RUN sed -Ei 's@^mozilla/DST_Root_CA_X3.crt$@!mozilla/DST_Root_CA_X3.crt@g' /etc/ca-certificates.conf && \
+    update-ca-certificates
+
 # https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-%28v2.x%29#Configuration_Directives
 
 ENV     WARNING="Warning: This PHP version is not maintained anymore! Message to data security officer has been sent."
