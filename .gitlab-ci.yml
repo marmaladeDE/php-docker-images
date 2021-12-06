@@ -45,3 +45,8 @@ build:8.0:
   extends: .build
   variables:
     PHP_VERSION: "8.0"
+
+build:8.1:
+  extends: .build
+  variables:
+    PHP_VERSION: "8.1"
