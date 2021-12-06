@@ -6,6 +6,8 @@ variables:
 
 .build:
   stage: build
+  tags:
+    - marmalade-shell
   script:
     - ./build ${PHP_VERSION}
     - "docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}"
