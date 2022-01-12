@@ -1,8 +1,16 @@
 stages:
+  - prepare
   - build
 
 variables:
   DOCKER_REGISTRY: index.docker.io
+
+.prepare:
+  stage: prepare
+  script:
+    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    - docker buildx create --name multiarch --driver docker-container --use
+    - docker buildx inspect --bootstrap
 
 .build:
   stage: build
@@ -12,6 +20,18 @@ variables:
     - ./build ${PHP_VERSION}
     - "docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}"
     - "docker push ${DOCKER_REGISTRY}/marmaladegmbh/php:${PHP_VERSION}"
+
+prepare:shell1:
+  stage: prepare
+  extends: .prepare
+  tags:
+    - marmalade-shell-1
+
+prepare:shell2:
+  stage: prepare
+  extends: .prepare
+  tags:
+    - marmalade-shell-2
 
 build:5.6:
   extends: .build
