@@ -5,12 +5,10 @@ if [ -z "$1" ]; then
 	exit
 fi
 
-exec docker buildx \
+exec docker buildx build \
   --platform linux/amd64,linux/arm64/v8\
   --pull \
   --tag ${DOCKER_REGISTRY:-index.docker.io}/marmaladegmbh/php:$1 \
   --force-rm \
-  --memory 4096MB \
-  --memory-swap 4096MB \
   -f Dockerfile-$1 \
   .
