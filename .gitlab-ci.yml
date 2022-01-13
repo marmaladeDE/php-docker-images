@@ -1,6 +1,7 @@
 stages:
   - prepare
-  - build
+  - build:amd64
+  - build:arm64
 
 variables:
   DOCKER_REGISTRY: index.docker.io
@@ -12,14 +13,35 @@ variables:
     - "docker buildx ls | grep -E '^multiarch' >/dev/null || docker buildx create --name multiarch --driver docker-container --use"
     - docker buildx inspect --bootstrap
 
-.build:
-  stage: build
+.build:amd64:
+  timeout: 1h
+  stage: build:amd64
   tags:
     - marmalade-shell
-  script:
-    - ./build ${PHP_VERSION}
-    - "docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}"
-    - "docker push ${DOCKER_REGISTRY}/marmaladegmbh/php:${PHP_VERSION}"
+  script: |
+    docker build \
+      --pull \
+      --tag ${DOCKER_REGISTRY:-index.docker.io}/marmaladegmbh/php:${PHP_VERSION} \
+      --force-rm \
+      -f Dockerfile-${PHP_VERSION} \
+      .
+    docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}
+    docker push ${DOCKER_REGISTRY}/marmaladegmbh/php:${PHP_VERSION}
+
+.build:arm64:
+  timeout: 6h
+  stage: build:arm64
+  tags:
+    - marmalade-shell
+  script: |
+    docker login --username ${ACCESS_TOKEN_USER} --password ${ACCESS_TOKEN}
+    docker buildx build \
+      --platform linux/arm64/v8 \
+      --pull \
+      --push \
+      --tag ${DOCKER_REGISTRY:-index.docker.io}/marmaladegmbh/php:${PHP_VERSION} \
+      -f Dockerfile-${PHP_VERSION} \
+      .
 
 prepare:shell1:
   stage: prepare
@@ -33,42 +55,82 @@ prepare:shell2:
   tags:
     - marmalade-shell-2
 
-build:5.6:
-  extends: .build
+build:5.6:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "5.6"
 
-build:7.0:
-  extends: .build
+build:7.0:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "7.0"
 
-build:7.1:
-  extends: .build
+build:7.1:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "7.1"
 
-build:7.2:
-  extends: .build
+build:7.2:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "7.2"
 
-build:7.3:
-  extends: .build
+build:7.3:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "7.3"
 
-build:7.4:
-  extends: .build
+build:7.4:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "7.4"
 
-build:8.0:
-  extends: .build
+build:8.0:amd64:
+  extends: .build:amd64
   variables:
     PHP_VERSION: "8.0"
 
-build:8.1:
-  extends: .build
+build:8.1:amd64:
+  extends: .build:amd64
+  variables:
+    PHP_VERSION: "8.1"
+
+build:5.6:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "5.6"
+
+build:7.0:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "7.0"
+
+build:7.1:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "7.1"
+
+build:7.2:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "7.2"
+
+build:7.3:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "7.3"
+
+build:7.4:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "7.4"
+
+build:8.0:arm64:
+  extends: .build:arm64
+  variables:
+    PHP_VERSION: "8.0"
+
+build:8.1:arm64:
+  extends: .build:arm64
   variables:
     PHP_VERSION: "8.1"
